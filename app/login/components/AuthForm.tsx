@@ -45,6 +45,7 @@ export default function AuthForm() {
                     type="text"
                     name="username"
                     placeholder="Ton nom d'utilisateur"
+                    autoComplete="off"
                     className="
                         w-full
                         rounded-xl
@@ -73,6 +74,7 @@ export default function AuthForm() {
                     type="password"
                     name="password"
                     placeholder="••••••••"
+                    autoComplete="off"
                     className="
                         w-full
                         rounded-xl

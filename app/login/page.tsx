@@ -1,6 +1,16 @@
 import AuthForm from "./components/AuthForm";
+import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
+import { redis } from "@/lib/redis";
 
-export default function Login() {
+export default async function Login() {
+    const sessionId = (await cookies()).get("session")?.value;
+    
+    if (sessionId) {
+        const session = await redis.get(`session:${sessionId}`);
+        if (session) redirect("/admin");
+    }
+
     return (
         <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 flex items-center justify-center px-4">
             <div className="w-full max-w-md">

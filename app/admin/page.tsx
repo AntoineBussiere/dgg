@@ -1,6 +1,7 @@
-import { redirect } from "next/navigation"
-import { cookies } from "next/headers"
-import { redis } from "@/lib/redis"
+import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
+import { redis } from "@/lib/redis";
+import GalleriesPage from "./galerie/page";
 
 export default async function AdminPage() {
     const sessionId = (await cookies()).get("session")?.value;
@@ -11,5 +12,7 @@ export default async function AdminPage() {
 
     if (!session) redirect("/login");
 
-    return <div>Admin OK 👌</div>
+    return (
+        <GalleriesPage></GalleriesPage>
+    );
 }
