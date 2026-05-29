@@ -15,7 +15,7 @@ model Media {
     id          String   @id @default(cuid())
     public_id   String
     url         String
-    caption     String?
+    caption     String
     type        String
     width       Int
     height      Int

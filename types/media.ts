@@ -18,7 +18,7 @@ export type CreateMediaDTO = {
     height: number;
     format: string;
     bytes: number;
-    date?: Date;
+    date?: Date | null;
     folderPath: string
     createdAt: Date;
 }

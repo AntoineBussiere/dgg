@@ -78,7 +78,7 @@ export async function POST(req: Request) {
             };
         });
         
-        const createdMedias = await prisma.media.createManyAndReturn({
+        const createdMedias: CreateMediaDTO[] = await prisma.media.createManyAndReturn({
             data: medias
         });
 
