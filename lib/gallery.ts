@@ -7,7 +7,7 @@ export function buildFolderTree(
     const root: FolderTreeNode[] = [];
 
     medias.forEach(media => {
-        const parts: string[] = media.folderPath
+        const parts = media.folderPath
             .split("/")
             .filter(Boolean);
 
