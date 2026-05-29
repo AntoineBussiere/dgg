@@ -7,14 +7,14 @@ export function buildFolderTree(
     const root: FolderTreeNode[] = [];
 
     medias.forEach(media => {
-        const parts = media.folderPath
+        const parts: string[] = media.folderPath
             .split("/")
             .filter(Boolean);
 
         let currentLevel = root;
         let currentPath = "";
 
-        parts.forEach((part: string, index) => {
+        parts.forEach((part, index) => {
             currentPath += (currentPath ? "/" : "") + part;
 
             let existing = currentLevel.find(
