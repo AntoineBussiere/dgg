@@ -9,14 +9,13 @@ export function buildFolderTree(
     medias.forEach(media => {
         const parts = media.folderPath
             .split("/")
-            .filter(Boolean);
+            .filter(x => !!x);
 
         let currentLevel = root;
         let currentPath = "";
 
         parts.forEach((part, index) => {
-            currentPath +=
-                (currentPath ? "/" : "") + part;
+            currentPath += (currentPath ? "/" : "") + part;
 
             let existing = currentLevel.find(
                 node => node.name === part
@@ -33,8 +32,7 @@ export function buildFolderTree(
                 currentLevel.push(existing);
             }
 
-            const isLastPart =
-                index === parts.length - 1
+            const isLastPart = index === parts.length - 1
 
             if (
                 isLastPart &&
