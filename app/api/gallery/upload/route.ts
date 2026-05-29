@@ -85,7 +85,7 @@ export async function POST(req: Request) {
         return NextResponse.json(createdMedias.map(media => ({
             ...media,
             status: 'saved',
-        }), {status: 200}));
+        })), {status: 200});
     } catch (e) {
         console.error(e);
         return NextResponse.json({error: 'Une erreur est survenue pendant la création.'}, {status: 500});
