@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { redis } from "@/lib/redis";
 
 export default async function Login() {
-    const sessionId = (await cookies()).get("session")?.value;
+    const sessionId = (await cookies()).get("session")?.value;    
     
     if (sessionId) {
         const session = await redis.get(`session:${sessionId}`);

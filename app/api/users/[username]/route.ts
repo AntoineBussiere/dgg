@@ -1,14 +1,12 @@
 import { requireAuth } from "@/lib/auth";
-import { hash } from "@/lib/bcrypt";
-import { redis, redisPrefix } from "@/lib/redis";
 import { deleteUser, resetPassword } from "@/lib/users";
-import { User } from "@/types/user";
 import { NextResponse } from "next/server";
 
 export async function PATCH(req: Request) {
     try {
         await requireAuth();
     } catch(e) {
+        console.error(e);
         return NextResponse.json({error: 'Unauthorized'}, {status: 401});
     }
 

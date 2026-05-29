@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { User } from "@/types/user";
 import { ActionButton } from "@/components/ui/ActionButton";
 import Modal from "@/components/modal/Modal";

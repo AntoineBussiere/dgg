@@ -9,7 +9,6 @@ export async function getUsers() {
 
 export async function getUser(username: string) {
     const users = await getUsers();
-
     return users.find(x => x.username === username);
 }
 
@@ -23,8 +22,7 @@ export async function createUser(username: string, password: string) {
     if (users.find(x => x.username === username)) {
         throw new Error('Username already exists');
     }
-    
-    console.log(password);
+
     const hashValue = await hash(password);
 
     users.push({

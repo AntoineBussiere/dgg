@@ -6,12 +6,8 @@ import SidebarLogoutButton from "./SidebarLogoutButton";
 
 const links = [
     {
-        href: "/admin/galerie",
+        href: "/admin/gallery",
         label: "Galerie",
-    },
-    {
-        href: "/admin/upload",
-        label: "Upload",
     },
     {
         href: "/admin/users",

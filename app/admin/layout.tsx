@@ -20,7 +20,6 @@ export default function AdminLayout({
                 <main className="
                     flex-1
                     min-h-screen
-                    p-8
                 ">
                     {children}
                 </main>

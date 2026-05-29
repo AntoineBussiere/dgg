@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { createPortal } from "react-dom";
 
 type ModalProps = {
@@ -16,9 +16,7 @@ export default function Modal({
     children,
     onClose,
 }: ModalProps) {
-    const [mounted, setMounted] = useState(false);
     useEffect(() => {
-        setMounted(true);
         function handleEscape(e: KeyboardEvent) {
             if (e.key === "Escape") {
                 onClose();
@@ -34,7 +32,9 @@ export default function Modal({
         };
     }, [open, onClose]);
 
-    if (!open || !mounted) return null;
+    if (!open || typeof window === "undefined") {
+        return null;
+    }
 
     return createPortal(
         <div className="
@@ -45,7 +45,6 @@ export default function Modal({
             items-center
             justify-center
         ">
-            {/* Overlay */}
             <div
                 onClick={onClose}
                 className="
@@ -56,7 +55,6 @@ export default function Modal({
                 "
             />
 
-            {/* Modal */}
             <div className="
                 relative
                 w-full
@@ -69,7 +67,6 @@ export default function Modal({
                 shadow-2xl
                 p-6
             ">
-                {/* Header */}
                 {title && (
                     <div className="mb-4">
                         <h2 className="text-xl font-semibold text-white">
@@ -78,7 +75,6 @@ export default function Modal({
                     </div>
                 )}
 
-                {/* Content */}
                 <div className="text-slate-200">
                     {children}
                 </div>

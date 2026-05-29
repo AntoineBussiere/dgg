@@ -7,7 +7,7 @@ export default async function UsersPageContainer() {
     const users = await getUsers();
 
     return (
-        <div>
+        <div className="p-8">
             <PageTitle
                 title="Utilisateurs"
                 description="Gestion des utilisateurs"

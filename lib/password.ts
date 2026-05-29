@@ -1,5 +1,5 @@
 export function passwordGenerator(size: number): string {
-    let str = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const str = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let password = '';
 
     for(let i = 0; i < size; i++) {

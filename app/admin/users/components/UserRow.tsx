@@ -196,7 +196,7 @@ export default function UserRow({user, onDelete}: Props) {
                 title="Supprimer un utilisateur"
                 onClose={() => setOpen(false)}
             >
-                <span>Vous êtes sur le point de supprimer l'utilisateur <i>{user.username}</i>. La validation entraînera sa suppression définitive.</span>
+                <span>Vous êtes sur le point de supprimer l&apos;utilisateur <i>{user.username}</i>. La validation entraînera sa suppression définitive.</span>
                 <div className="flex mt-4">
                     <button
                         type="submit"

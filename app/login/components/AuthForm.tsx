@@ -38,7 +38,7 @@ export default function AuthForm() {
             {/* Username */}
             <div>
                 <label className="block text-sm font-medium text-slate-200 mb-2">
-                    Nom d'utilisateur
+                    Nom d&apos;utilisateur
                 </label>
 
                 <input
