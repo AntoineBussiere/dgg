@@ -3,9 +3,10 @@
 import { SavedMedia, UpdateMediaDTO } from "@/types/media";
 import { prisma } from "./prisma";
 import cloudinary from "./cloudinary";
+import { Media } from "@prisma/client";
 
 export async function getMedias(): Promise<SavedMedia[]> {
-    const medias = await prisma.media.findMany();
+    const medias: Media[] = await prisma.media.findMany();
     return medias.map(media => ({
         ...media,
         status: 'saved',
