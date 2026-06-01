@@ -5,6 +5,7 @@ import { PendingMedia, SavedMedia } from "@/types/media";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Modal from "../modal/Modal";
 import Image from "next/image";
+import { Tooltip } from "../ui/Tooltip";
 
 type Props = {
     file: PendingMedia | SavedMedia,
@@ -91,7 +92,7 @@ export default function MediaCard({file, onUpdateFile, onDeleteFile}: Props) {
     };
 
     return (
-        <div className="relative rounded-xl border border-white/10 bg-white/5 overflow-hidden hover:bg-white/10 transition group" ref={cardRef}>
+        <div className="relative rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition" ref={cardRef}>
             {file.status !== 'saved' && (
                 <MediaStatusBadge status={file.status} />
             )}
@@ -111,9 +112,11 @@ export default function MediaCard({file, onUpdateFile, onDeleteFile}: Props) {
             <div className="p-3 space-y-1">
                 {!isEditing ? (
                     <div>
-                        <div className="text-sm font-medium">
-                            {caption && caption !== '' ? caption : 'Pas de légende'}
-                        </div>
+                        <Tooltip content={caption}>
+                            <div className="w-full truncate">
+                                {caption}
+                            </div>
+                        </Tooltip>
 
                         <div className="text-xs text-slate-400">
                             {date && date !== '' ? getLocalDate(date) : 'Pas de date'}
@@ -150,24 +153,24 @@ export default function MediaCard({file, onUpdateFile, onDeleteFile}: Props) {
                 )}
                 
 
-                <div className="flex gap-2 mt-2 transition">
+                <div className="flex flex-col 2xl:flex-row gap-2 mt-2 transition">
                     {!isEditing ? (
                         <>
-                            <button className="text-xs px-2 py-1 rounded bg-white/10 hover:bg-white/20" onClick={() => setIsEditing(true)}>
+                            <button className="flex-1 min-w-0 text-xs px-2 py-1 rounded bg-white/10 hover:bg-white/20" onClick={() => setIsEditing(true)}>
                                 Modifier
                             </button>
 
-                            <button className="text-xs px-2 py-1 rounded bg-red-500/20 hover:bg-red-500/40" onClick={() => setIsModalOpen(true)}>
+                            <button className="flex-1 min-w-0 text-xs px-2 py-1 rounded bg-red-500/20 hover:bg-red-500/40" onClick={() => setIsModalOpen(true)}>
                                 Supprimer
                             </button>
                         </>
                     ) : (
                         <>
-                            <button className="text-xs px-2 py-1 rounded bg-blue-500 hover:bg-blue-600" onClick={handleSave}>
+                            <button className="flex-1 text-xs px-2 py-1 rounded bg-blue-500 hover:bg-blue-600" onClick={handleSave}>
                                 Sauvegarder
                             </button>
 
-                            <button className="text-xs px-2 py-1 rounded bg-white/10 hover:bg-white/20" onClick={() => setIsEditing(false)}>
+                            <button className="flex-1 text-xs px-2 py-1 rounded bg-white/10 hover:bg-white/20" onClick={() => setIsEditing(false)}>
                                 Annuler
                             </button>
                         </>
@@ -180,16 +183,17 @@ export default function MediaCard({file, onUpdateFile, onDeleteFile}: Props) {
                 title="Supprimer un fichier"
                 onClose={() => setIsModalOpen(false)}
             >
-                <span>Êtes-vous sûr de vouloir supprimer le fichier {file.caption} ?</span>
+                <p>Êtes-vous sûr de vouloir supprimer le fichier suivant : </p>
+                <p className="truncate">{file.caption}</p>
                 <div className="flex mt-4">
                     <button
                         type="submit"
-                        className="w-50 text-gray-200 bg-gray-500/10 border-gray-500/30 hover:bg-gray-500/20 hover:border-gray-400/40 py-2 rounded mx-2"
+                        className="w-1/2 text-gray-200 bg-gray-500/10 border-gray-500/30 hover:bg-gray-500/20 hover:border-gray-400/40 py-2 rounded mx-2"
                         onClick={() => setIsModalOpen(false)}
                     >Annuler</button>
                     <button
                         type="submit"
-                        className="w-50 text-red-200 bg-red-500/10 border-red-500/30 hover:bg-red-500/20 hover:border-red-400/40 py-2 rounded mx-2"
+                        className="w-1/2 text-red-200 bg-red-500/10 border-red-500/30 hover:bg-red-500/20 hover:border-red-400/40 py-2 rounded mx-2"
                         onClick={handleDelete}
                     >Supprimer</button>
                 </div>
