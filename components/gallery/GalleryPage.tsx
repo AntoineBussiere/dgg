@@ -59,14 +59,18 @@ export default function GalleryPage({initialMedias, initialFolderTree}: Props) {
 
     function handleFilesSaved(savedMedias: SavedMedia[]) {
         setImportedFiles([]);
-        setAllMedias([...allMedias, ...savedMedias]);
+        setAllMedias(prev => {
+            const updated = [...prev, ...savedMedias];
+            rebuildFolderTree(updated, []);
+            return updated;
+        });
     }
 
     function deleteFile(file: SavedMedia | PendingMedia) {
         if (file.status === 'saved') {
-            setAllMedias(allMedias.filter(x => x.id !== file.id));
+            setAllMedias(prev => prev.filter(x => x.id !== file.id));
         } else {
-            setImportedFiles(importedFiles.filter(x => x.id !== file.id));
+            setImportedFiles(prev => prev.filter(x => x.id !== file.id));
         }
     }
 
@@ -80,9 +84,11 @@ export default function GalleryPage({initialMedias, initialFolderTree}: Props) {
 
     async function handleFolderRename(oldFolderPath: string, newFolderName: string) {
         const newFolderPath = oldFolderPath.substring(0, oldFolderPath.lastIndexOf("/")) + '/' + newFolderName
-        setAllMedias(renameFolder(allMedias, oldFolderPath, newFolderPath));
-        setImportedFiles(renameFolder(importedFiles, oldFolderPath, newFolderPath));
-        setFolderTree(buildFolderTree([...allMedias, ...importedFiles]));
+        const renamedAllMedias = renameFolder(allMedias, oldFolderPath, newFolderPath);
+        setAllMedias(renamedAllMedias);
+        const renamedImportedFiles = renameFolder(importedFiles, oldFolderPath, newFolderPath);
+        setImportedFiles(renamedImportedFiles);
+        rebuildFolderTree(renamedAllMedias, renamedImportedFiles);
         if (selectedFolder === oldFolderPath) {
             setSelectedFolder(newFolderPath);
         }
@@ -104,6 +110,16 @@ export default function GalleryPage({initialMedias, initialFolderTree}: Props) {
         if (selectedFolder.includes(folderPath)) {
             setSelectedFolder(folderPath.substring(0, folderPath.lastIndexOf("/")));
         }
+        rebuildFolderTree(allMedias, importedFiles);
+    }
+
+    function rebuildFolderTree(medias: SavedMedia[], imported: PendingMedia[]) {
+        setFolderTree(
+            buildFolderTree([
+                ...medias,
+                ...imported
+            ])
+        );
     }
 
     return (

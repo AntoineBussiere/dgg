@@ -66,8 +66,13 @@ export default function Dropzone({onFilesAdded, selectedFolder}: Props) {
     const handleFileTransfer = (files: FileList | null): void => {
         if (files && files.length > 0) {
             const filesArray = filterValidFiles(Array.from(files));
+            const filteredFilesArray = filesArray.filter(x => x.size > 0);
+
+            if (filteredFilesArray.length !== filesArray.length) {
+                // TODO toast erreur
+            }
             
-            onFilesAdded(filesArray.map(file => {
+            onFilesAdded(filteredFilesArray.map(file => {
                 const folder = file.webkitRelativePath;
                 
                 return {
@@ -75,8 +80,9 @@ export default function Dropzone({onFilesAdded, selectedFolder}: Props) {
                     file,
                     caption: file.name,
                     folderPath: folder ? selectedFolder + '/' + folder.substring(0, folder.lastIndexOf("/")) : selectedFolder,
-                    status: 'pending'
-                }
+                    status: 'pending',
+                    url: URL.createObjectURL(file)
+                };
             }));
         }
     }

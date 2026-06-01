@@ -188,9 +188,11 @@ export default function UserRow({user, onDelete}: Props) {
                 </div>
             )}
 
-            <ActionButton variant="danger" onClick={openModal}>
-                Supprimer
-            </ActionButton>
+            {user.username !== 'admin' && (
+                <ActionButton variant="danger" onClick={openModal}>
+                    Supprimer
+                </ActionButton>
+            )}
             <Modal
                 open={open}
                 title="Supprimer un utilisateur"

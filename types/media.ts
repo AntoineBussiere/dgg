@@ -3,6 +3,7 @@ import { Media } from "@prisma/client";
 export type PendingMedia = {
     id: string;
     file: File;
+    url: string;
     caption: string;
     date?: string;
     folderPath: string;

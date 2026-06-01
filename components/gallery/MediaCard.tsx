@@ -45,7 +45,8 @@ export default function MediaCard({file, onUpdateFile, onDeleteFile}: Props) {
                 caption,
                 date,
                 folderPath: file.folderPath,
-                status: file.status
+                status: file.status,
+                url: file.url
             }
             onUpdateFile(newFile);
             setIsEditing(false);
@@ -69,7 +70,7 @@ export default function MediaCard({file, onUpdateFile, onDeleteFile}: Props) {
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, [isEditing, caption, date, handleSave]);
+    }, [isEditing, handleSave]);
 
     async function handleDelete() {
         if (file.status === 'saved') {
@@ -97,7 +98,7 @@ export default function MediaCard({file, onUpdateFile, onDeleteFile}: Props) {
             <div className="relative aspect-square bg-slate-700 overflow-hidden">
                 <Image
                     alt={caption}
-                    src={file.status === 'saved' ? file.url : URL.createObjectURL(file.file)}
+                    src={file.url}
                     className="object-cover"
                     sizes="
                         (max-width: 1024px) 33vw,
@@ -136,8 +137,7 @@ export default function MediaCard({file, onUpdateFile, onDeleteFile}: Props) {
                         <input
                             type="date"
                             value={date && date !== '' ? getISODate(date) : undefined}
-                            onChange={(e) => {setDate(e.target.value); console.log(e.target.value);
-                            }}
+                            onChange={(e) => setDate(e.target.value)}
                             className="
                                 w-full px-3 py-2 rounded-lg
                                 bg-white/10 border border-white/10

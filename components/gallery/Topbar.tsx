@@ -1,4 +1,5 @@
-import { PendingMedia, SavedMedia } from "@/types/media";
+import { uploadMany } from "@/lib/upload";
+import { CreateMediaDTO, PendingMedia, SavedMedia } from "@/types/media";
 
 type Props = {
     importedFiles: PendingMedia[],
@@ -11,33 +12,38 @@ type Props = {
 export default function Topbar({importedFiles, selectedFolder, onFilesSaving, onFilesSaved, onFilesError}: Props) {
     async function handleSave() {
         onFilesSaving();
-        const formData = new FormData();
+        const uploadedData = await uploadMany(importedFiles.map(x => x.file), selectedFolder);
+        const medias: CreateMediaDTO[] = [];
 
-        const metadata = importedFiles.map(file => ({
-            id: file.id,
-            caption: file.caption,
-            date: file.date,
-            folderPath: file.folderPath,
-            status: file.status,
-        }));        
-
-        formData.append("metadata", JSON.stringify(metadata));
-
-        importedFiles.forEach(file => {
-            formData.append("files", file.file, file.id);
-        });
+        for(let i = 0; i < uploadedData.length; i++) {
+            const date = importedFiles[i].date ?? null;
+            medias.push({
+                url: uploadedData[i].secure_url,
+                bytes: uploadedData[i].bytes,
+                caption: importedFiles[i].caption,
+                date: date && date !== '' ? new Date(date) : undefined,
+                folderPath: uploadedData[i].asset_folder as string,
+                format: uploadedData[i].format,
+                height: uploadedData[i].height,
+                width: uploadedData[i].width,
+                public_id: uploadedData[i].public_id,
+                type: uploadedData[i].type,
+                createdAt: new Date()
+            });
+        }
 
         const res = await fetch("/api/gallery/upload", {
             method: "POST",
-            body: formData
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ medias }),
         });
 
         if (res.status === 500) {
             onFilesError();
+            // TODO toast error
         } else {
             onFilesSaved(await res.json());
         }
-        
     }
 
     return (
@@ -70,8 +76,8 @@ export default function Topbar({importedFiles, selectedFolder, onFilesSaving, on
                                 <path
                                     d="M12 8v5"
                                     stroke="white"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
                                 />
                                 <circle
                                     cx="12"
