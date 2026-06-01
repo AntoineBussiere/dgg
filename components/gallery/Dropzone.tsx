@@ -2,6 +2,7 @@
 
 import { PendingMedia } from "@/types/media";
 import { ChangeEvent, DragEvent, useEffect, useRef, useState } from "react";
+import { useToast } from "../ui/Toast/ToastProvider";
 
 type Props = {
     onFilesAdded: (files: PendingMedia[]) => void,
@@ -13,6 +14,8 @@ export default function Dropzone({onFilesAdded, selectedFolder}: Props) {
 
     const inputFileRef = useRef<HTMLInputElement>(null);
     const inputFolderRef = useRef<HTMLInputElement>(null);
+
+    const { showToast } = useToast();
 
     useEffect(() => {
         const preventDefault = (e: Event) => {
@@ -69,7 +72,8 @@ export default function Dropzone({onFilesAdded, selectedFolder}: Props) {
             const filteredFilesArray = filesArray.filter(x => x.size > 0);
 
             if (filteredFilesArray.length !== filesArray.length) {
-                // TODO toast erreur
+                const nbLostFile = filesArray.length - filteredFilesArray.length;
+                showToast(`${nbLostFile} fichier${nbLostFile > 1 ? 's' : ''} n'${nbLostFile > 1 ? 'ont' : 'a'} pas pu être importé${nbLostFile > 1 ? 's' : ''}. Cela peut être dû à un nom de fichier trop long (30+ caractères)`, 'error');
             }
             
             onFilesAdded(filteredFilesArray.map(file => {

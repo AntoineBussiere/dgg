@@ -6,9 +6,10 @@ import { createPortal } from 'react-dom';
 type Props = {
     content: ReactNode;
     children: ReactNode;
+    disabled?: boolean;
 };
 
-export function Tooltip({ content, children }: Props) {
+export function Tooltip({ content, children, disabled = false }: Props) {
     const triggerRef = useRef<HTMLDivElement>(null);
     const tooltipRef = useRef<HTMLDivElement>(null);
 
@@ -36,10 +37,8 @@ export function Tooltip({ content, children }: Props) {
 
         const padding = 8;
 
-        // Empêche de sortir de l'écran horizontalement
         left = Math.max(padding, Math.min(left, window.innerWidth - tooltipRect.width - padding));
 
-        // Si pas assez de place au-dessus, on le met dessous
         if (top < padding) {
             top = triggerRect.bottom + 8;
         }
@@ -75,7 +74,7 @@ export function Tooltip({ content, children }: Props) {
                 {children}
             </div>
 
-            {mounted && open && createPortal(
+            {mounted && open && !disabled && createPortal(
                 <div
                     ref={tooltipRef}
                     style={{

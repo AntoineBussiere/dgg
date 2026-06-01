@@ -9,6 +9,7 @@ import { deleteFolder } from "@/lib/medias";
 import { FolderTreeNode } from "@/types/folder-tree";
 import { PendingMedia, SavedMedia } from "@/types/media";
 import { useState } from "react";
+import { useToast } from "../ui/Toast/ToastProvider";
 
 type Props = {
     initialMedias: SavedMedia[],
@@ -20,6 +21,8 @@ export default function GalleryPage({initialMedias, initialFolderTree}: Props) {
     const [folderTree, setFolderTree] = useState<FolderTreeNode[]>(initialFolderTree);
     const [importedFiles, setImportedFiles] = useState<PendingMedia[]>([]);
     const [selectedFolder, setSelectedFolder] = useState<string>('Discjonctés');
+            
+    const { showToast } = useToast();
 
     function handleFiles(files: PendingMedia[]) {
         setImportedFiles(prev => {
@@ -97,20 +100,29 @@ export default function GalleryPage({initialMedias, initialFolderTree}: Props) {
         if (allMedias.some(x => x.folderPath === oldFolderPath)) {
             const mediasToRename = allMedias.filter(x => x.folderPath === newFolderPath);
     
-            await fetch('/api/gallery/folders', {
+            const res = await fetch('/api/gallery/folders', {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ oldFolderPath, newFolderPath, mediasToRename }),
             });
+
+            if (res.status !== 200) {
+                showToast('Une erreur est survenue lors de la sauvegarde. Veuillez contacter un administrateur.', 'error');
+            }
         }
     }
 
     async function handleFolderDelete(folderPath: string) {
-        await deleteFolder(folderPath);
-        if (selectedFolder.includes(folderPath)) {
-            setSelectedFolder(folderPath.substring(0, folderPath.lastIndexOf("/")));
+        try {
+            await deleteFolder(folderPath);
+
+            if (selectedFolder.includes(folderPath)) {
+                setSelectedFolder(folderPath.substring(0, folderPath.lastIndexOf("/")));
+            }
+            rebuildFolderTree(allMedias, importedFiles);
+        } catch (e) {
+            showToast('Une erreur est survenue lors de la suppression. Veuillez contacter un administrateur.', 'error')
         }
-        rebuildFolderTree(allMedias, importedFiles);
     }
 
     function rebuildFolderTree(medias: SavedMedia[], imported: PendingMedia[]) {

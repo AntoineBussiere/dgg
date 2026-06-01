@@ -1,5 +1,6 @@
 import { uploadMany } from "@/lib/upload";
 import { CreateMediaDTO, PendingMedia, SavedMedia } from "@/types/media";
+import { useToast } from "../ui/Toast/ToastProvider";
 
 type Props = {
     importedFiles: PendingMedia[],
@@ -10,6 +11,8 @@ type Props = {
 }
 
 export default function Topbar({importedFiles, selectedFolder, onFilesSaving, onFilesSaved, onFilesError}: Props) {
+    const { showToast } = useToast();
+
     async function handleSave() {
         onFilesSaving();
         const uploadedData = await uploadMany(importedFiles.map(x => x.file), selectedFolder);
@@ -40,9 +43,10 @@ export default function Topbar({importedFiles, selectedFolder, onFilesSaving, on
 
         if (res.status === 500) {
             onFilesError();
-            // TODO toast error
+            showToast('Une erreur est survenue lors de la sauvegarde. Veuillez contacter un administrateur.', 'error');
         } else {
             onFilesSaved(await res.json());
+            showToast('Les fichiers ont bien été sauvegardés.', 'success');
         }
     }
 

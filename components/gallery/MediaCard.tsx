@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Modal from "../modal/Modal";
 import Image from "next/image";
 import { Tooltip } from "../ui/Tooltip";
+import { useToast } from "../ui/Toast/ToastProvider";
 
 type Props = {
     file: PendingMedia | SavedMedia,
@@ -21,6 +22,11 @@ export default function MediaCard({file, onUpdateFile, onDeleteFile}: Props) {
 
     const cardRef = useRef<HTMLDivElement>(null);
 
+    const { showToast } = useToast();
+
+    const ref = useRef<HTMLDivElement>(null);
+    const isTruncated = useRef(false);
+
     function getISODate (date: string | Date)  {
         const d = new Date(date);
         const year = d.getFullYear();
@@ -33,10 +39,14 @@ export default function MediaCard({file, onUpdateFile, onDeleteFile}: Props) {
     const handleSave = useCallback(async () => {
         if (file.status === 'saved') {
             if (caption && caption !== '' && caption !== file.caption || date && date !== '' && (file.date ? date !== getISODate(file.date) : true)) {
-                await updateMedia(file.id, {
-                    caption,
-                    date: date ? new Date(date) : undefined
-                });
+                try {
+                    await updateMedia(file.id, {
+                        caption,
+                        date: date ? new Date(date) : undefined
+                    });
+                } catch(e) {
+                    showToast('Une erreur est survenue lors de la sauvegarde du fichier. Veuillez contacter un administrateur.', 'error');
+                }
             }            
             setIsEditing(false);
         } else {
@@ -112,8 +122,15 @@ export default function MediaCard({file, onUpdateFile, onDeleteFile}: Props) {
             <div className="p-3 space-y-1">
                 {!isEditing ? (
                     <div>
-                        <Tooltip content={caption}>
-                            <div className="w-full truncate">
+                        <Tooltip content={caption} disabled={!isTruncated.current}>
+                            <div
+                                ref={ref}
+                                className="w-full truncate"
+                                onMouseEnter={() => {
+                                    if (!ref.current) return;
+                                    isTruncated.current = ref.current.scrollWidth > ref.current.clientWidth;
+                                }}
+                            >
                                 {caption}
                             </div>
                         </Tooltip>
@@ -151,7 +168,6 @@ export default function MediaCard({file, onUpdateFile, onDeleteFile}: Props) {
                         />
                     </div>
                 )}
-                
 
                 <div className="flex flex-col 2xl:flex-row gap-2 mt-2 transition">
                     {!isEditing ? (
@@ -175,7 +191,6 @@ export default function MediaCard({file, onUpdateFile, onDeleteFile}: Props) {
                             </button>
                         </>
                     )}
-                    
                 </div>
             </div>
             <Modal
