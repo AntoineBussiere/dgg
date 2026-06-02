@@ -12,11 +12,16 @@ export async function getMedias(): Promise<SavedMedia[]> {
     }));
 }
 
-export async function updateMedia(id: string, media: UpdateMediaDTO) {
-    await prisma.media.update({
+export async function updateMedia(id: string, media: UpdateMediaDTO): Promise<SavedMedia> {
+    const updatedMedia = await prisma.media.update({
         where: { id },
         data: { caption: media.caption, date: media.date }
-    })
+    });
+
+    return {
+        ...updatedMedia,
+        status: 'saved',
+    }
 }
 
 export async function deleteMedia(public_id: string) {

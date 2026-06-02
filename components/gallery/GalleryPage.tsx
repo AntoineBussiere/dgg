@@ -43,12 +43,20 @@ export default function GalleryPage({initialMedias, initialFolderTree}: Props) {
         setSelectedFolder(name);
     }
 
-    function updateFile(updated: PendingMedia) {
-        setImportedFiles(prev =>
-            prev.map(f =>
-                f.id === updated.id ? updated : f
-            )
-        );
+    function updateFile(updatedFile: SavedMedia | PendingMedia) {
+        if (updatedFile.status === 'saved') {
+            setAllMedias(prev =>
+                prev.map(f =>
+                    f.id === updatedFile.id ? updatedFile : f
+                )
+            );
+        } else {
+            setImportedFiles(prev =>
+                prev.map(f =>
+                    f.id === updatedFile.id ? updatedFile : f
+                )
+            );
+        }
     }
 
     function handleFilesStatus(status: 'uploading' | 'error') {
@@ -71,9 +79,17 @@ export default function GalleryPage({initialMedias, initialFolderTree}: Props) {
 
     function deleteFile(file: SavedMedia | PendingMedia) {
         if (file.status === 'saved') {
-            setAllMedias(prev => prev.filter(x => x.id !== file.id));
+            setAllMedias(prev => {
+                const filteredMedias = prev.filter(x => x.id !== file.id)
+                rebuildFolderTree(filteredMedias, importedFiles);
+                return filteredMedias;
+            });
         } else {
-            setImportedFiles(prev => prev.filter(x => x.id !== file.id));
+            setImportedFiles(prev => {
+                const filteredMedias = prev.filter(x => x.id !== file.id);
+                rebuildFolderTree(allMedias, filteredMedias);
+                return filteredMedias;
+            });
         }
     }
 
@@ -158,7 +174,7 @@ export default function GalleryPage({initialMedias, initialFolderTree}: Props) {
 
                     <MediaGrid
                         importedFiles={getImportedMediasOfSelectedFolder()}
-                        allMedias={getAllMediasOfSelectedFolder()}
+                        savedMedias={getAllMediasOfSelectedFolder()}
                         onUpdateFile={updateFile}
                         onDeleteFile={deleteFile}
                     />

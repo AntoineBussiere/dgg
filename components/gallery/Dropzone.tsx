@@ -3,6 +3,7 @@
 import { PendingMedia } from "@/types/media";
 import { ChangeEvent, DragEvent, useEffect, useRef, useState } from "react";
 import { useToast } from "../ui/Toast/ToastProvider";
+import { getImageDimensions, getVideoDimensions } from "@/hooks/file";
 
 type Props = {
     onFilesAdded: (files: PendingMedia[]) => void,
@@ -66,7 +67,7 @@ export default function Dropzone({onFilesAdded, selectedFolder}: Props) {
         handleFileTransfer(e.target.files);
     }
 
-    const handleFileTransfer = (files: FileList | null): void => {
+    const handleFileTransfer = async (files: FileList | null) => {
         if (files && files.length > 0) {
             const filesArray = filterValidFiles(Array.from(files));
             const filteredFilesArray = filesArray.filter(x => x.size > 0);
@@ -75,9 +76,15 @@ export default function Dropzone({onFilesAdded, selectedFolder}: Props) {
                 const nbLostFile = filesArray.length - filteredFilesArray.length;
                 showToast(`${nbLostFile} fichier${nbLostFile > 1 ? 's' : ''} n'${nbLostFile > 1 ? 'ont' : 'a'} pas pu être importé${nbLostFile > 1 ? 's' : ''}. Cela peut être dû à un nom de fichier trop long (30+ caractères)`, 'error');
             }
-            
-            onFilesAdded(filteredFilesArray.map(file => {
+
+            const structuredArrayPromise = filteredFilesArray.map(async file => {
                 const folder = file.webkitRelativePath;
+                let width: number, height: number;
+                if (file.type.startsWith('image/')) {
+                    ({ width, height } = await getImageDimensions(file));
+                } else {
+                    ({ width, height } = await getVideoDimensions(file));
+                }
                 
                 return {
                     id: crypto.randomUUID(),
@@ -85,9 +92,14 @@ export default function Dropzone({onFilesAdded, selectedFolder}: Props) {
                     caption: file.name,
                     folderPath: folder ? selectedFolder + '/' + folder.substring(0, folder.lastIndexOf("/")) : selectedFolder,
                     status: 'pending',
-                    url: URL.createObjectURL(file)
-                };
-            }));
+                    url: URL.createObjectURL(file),
+                    width,
+                    height
+                } as PendingMedia;
+            })
+            const structuredArray = await Promise.all(structuredArrayPromise);
+            
+            onFilesAdded(structuredArray);
         }
     }
 

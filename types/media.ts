@@ -8,6 +8,8 @@ export type PendingMedia = {
     date?: string;
     folderPath: string;
     status: "pending" | "uploading" | "error";
+    width: number;
+    height: number;
 }
 
 export type CreateMediaDTO = {

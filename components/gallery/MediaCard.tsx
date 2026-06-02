@@ -7,18 +7,20 @@ import Modal from "../modal/Modal";
 import Image from "next/image";
 import { Tooltip } from "../ui/Tooltip";
 import { useToast } from "../ui/Toast/ToastProvider";
+import { getISODate, getLocalDate } from "@/hooks/date";
 
 type Props = {
     file: PendingMedia | SavedMedia,
-    onUpdateFile: (file: PendingMedia) => void,
-    onDeleteFile: (file: SavedMedia | PendingMedia) => void
+    onUpdateFile: (file: SavedMedia | PendingMedia) => void,
+    onDeleteFile: (file: SavedMedia | PendingMedia) => void,
+    openLightbox: (id: string) => void
 }
 
-export default function MediaCard({file, onUpdateFile, onDeleteFile}: Props) {
+export default function MediaCard({file, onUpdateFile, onDeleteFile, openLightbox}: Props) {
     const [isEditing, setIsEditing] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [caption, setCaption] = useState(file.caption ?? '');
-    const [date, setDate] = useState(file.date ? getISODate(file.date) : undefined);
+    const [date, setDate] = useState(file.date ? getISODate(file.date) : '');
 
     const cardRef = useRef<HTMLDivElement>(null);
 
@@ -27,23 +29,21 @@ export default function MediaCard({file, onUpdateFile, onDeleteFile}: Props) {
     const ref = useRef<HTMLDivElement>(null);
     const isTruncated = useRef(false);
 
-    function getISODate (date: string | Date)  {
-        const d = new Date(date);
-        const year = d.getFullYear();
-        const month = String(d.getMonth() + 1).padStart(2, "0");
-        const day = String(d.getDate()).padStart(2, "0");
-
-        return `${year}-${month}-${day}`;
-    };
+    let originalCaption = file.caption;
+    let originalDate = file.date ? getISODate(file.date) : '';
 
     const handleSave = useCallback(async () => {
         if (file.status === 'saved') {
             if (caption && caption !== '' && caption !== file.caption || date && date !== '' && (file.date ? date !== getISODate(file.date) : true)) {
                 try {
-                    await updateMedia(file.id, {
+                    const updatedMedia = await updateMedia(file.id, {
                         caption,
                         date: date ? new Date(date) : undefined
                     });
+                    originalCaption = caption;
+                    originalDate = date;
+
+                    onUpdateFile(updatedMedia);
                 } catch(e) {
                     showToast('Une erreur est survenue lors de la sauvegarde du fichier. Veuillez contacter un administrateur.', 'error');
                 }
@@ -57,9 +57,13 @@ export default function MediaCard({file, onUpdateFile, onDeleteFile}: Props) {
                 date,
                 folderPath: file.folderPath,
                 status: file.status,
-                url: file.url
+                url: file.url,
+                width: file.width,
+                height: file.height
             }
             onUpdateFile(newFile);
+            originalCaption = caption;
+            originalDate = date;
             setIsEditing(false);
         }
     }, [caption, date, file, onUpdateFile]);
@@ -91,18 +95,18 @@ export default function MediaCard({file, onUpdateFile, onDeleteFile}: Props) {
         setIsModalOpen(false);
     }
 
-    function getLocalDate (date: string | Date)  {
-        
-        const d = new Date(date);
-        const year = d.getFullYear();
-        const month = String(d.getMonth() + 1).padStart(2, "0");
-        const day = String(d.getDate()).padStart(2, "0");
+    function handleOpenMediaLightBox() {
+        openLightbox(file.id);
+    }
 
-        return `${day}-${month}-${year}`;
-    };
+    function cancelEdit() {
+        setIsEditing(false);
+        setCaption(originalCaption);
+        setDate(originalDate);
+    }
 
     return (
-        <div className="relative rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition" ref={cardRef}>
+        <div className="relative rounded-xl overflow-hidden border border-white/10 bg-white/5 hover:bg-white/10 transition" ref={cardRef}>
             {file.status !== 'saved' && (
                 <MediaStatusBadge status={file.status} />
             )}
@@ -116,7 +120,8 @@ export default function MediaCard({file, onUpdateFile, onDeleteFile}: Props) {
                         (max-width: 1536px) 25vw,
                         16vw
                     "
-                    fill />
+                    fill
+                    onClick={handleOpenMediaLightBox} />
             </div>
 
             <div className="p-3 space-y-1">
@@ -186,7 +191,7 @@ export default function MediaCard({file, onUpdateFile, onDeleteFile}: Props) {
                                 Sauvegarder
                             </button>
 
-                            <button className="flex-1 text-xs px-2 py-1 rounded bg-white/10 hover:bg-white/20" onClick={() => setIsEditing(false)}>
+                            <button className="flex-1 text-xs px-2 py-1 rounded bg-white/10 hover:bg-white/20" onClick={cancelEdit}>
                                 Annuler
                             </button>
                         </>

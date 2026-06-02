@@ -1,14 +1,28 @@
+"use client"
+
 import { PendingMedia, SavedMedia } from "@/types/media";
 import MediaCard from "./MediaCard";
+import MediaLightBox from "../ui/MediaLightBox";
+import { useState } from "react";
 
 type Props = {
     importedFiles: PendingMedia[],
-    allMedias: SavedMedia[],
-    onUpdateFile: (file: PendingMedia) => void,
+    savedMedias: SavedMedia[],
+    onUpdateFile: (file: SavedMedia | PendingMedia) => void,
     onDeleteFile: (file: SavedMedia | PendingMedia) => void
 }
 
-export default function MediaGrid({importedFiles, onUpdateFile, onDeleteFile, allMedias}: Props) {
+export default function MediaGrid({importedFiles, onUpdateFile, onDeleteFile, savedMedias}: Props) {
+    const [lightboxOpen, setLightboxOpen] = useState(false);
+    const [selectedIndex, setSelectedIndex] = useState(-1);
+
+    const allMedias = [...importedFiles, ...savedMedias];
+
+    function openLightBox(mediaId: string) {
+        setLightboxOpen(true);
+        setSelectedIndex(allMedias.findIndex(x => x.id === mediaId)); 
+    }
+
     return (
         <div className="space-y-8">
             {importedFiles.length > 0 && (
@@ -39,6 +53,7 @@ export default function MediaGrid({importedFiles, onUpdateFile, onDeleteFile, al
                                 key={index}
                                 onUpdateFile={onUpdateFile}
                                 onDeleteFile={onDeleteFile}
+                                openLightbox={openLightBox}
                             />
                         ))}
                     </div>
@@ -46,7 +61,7 @@ export default function MediaGrid({importedFiles, onUpdateFile, onDeleteFile, al
             )}
 
             <section className="space-y-4 @container">
-                {importedFiles.length > 0 && allMedias.length > 0 && (
+                {importedFiles.length > 0 && savedMedias.length > 0 && (
                     <div className="flex items-center gap-3">
                         <div className="h-px flex-1 bg-white/10" />
 
@@ -68,16 +83,23 @@ export default function MediaGrid({importedFiles, onUpdateFile, onDeleteFile, al
                 )}
 
                 <div className="grid grid-cols-3 gap-4 @lg:grid-cols-4 @2xl:grid-cols-6">
-                    {allMedias.map((file, index) => (
+                    {savedMedias.map((file, index) => (
                         <MediaCard
                             file={file}
                             key={index}
                             onUpdateFile={onUpdateFile}
                             onDeleteFile={onDeleteFile}
+                            openLightbox={openLightBox}
                         />
                     ))}
                 </div>
             </section>
+            <MediaLightBox
+                open={lightboxOpen}
+                medias={allMedias}
+                index={selectedIndex}
+                onClose={() => {setSelectedIndex(-1); setLightboxOpen(false);}}
+            />
         </div>
     );
 }
