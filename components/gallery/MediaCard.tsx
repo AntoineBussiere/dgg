@@ -10,17 +10,17 @@ import { useToast } from "../ui/Toast/ToastProvider";
 import { getISODate, getLocalDate } from "@/hooks/date";
 
 type Props = {
-    file: PendingMedia | SavedMedia,
-    onUpdateFile: (file: SavedMedia | PendingMedia) => void,
-    onDeleteFile: (file: SavedMedia | PendingMedia) => void,
+    media: PendingMedia | SavedMedia,
+    onUpdateMedia: (media: SavedMedia | PendingMedia) => void,
+    onDeleteMedia: (media: SavedMedia | PendingMedia) => void,
     openLightbox: (id: string) => void
 }
 
-export default function MediaCard({file, onUpdateFile, onDeleteFile, openLightbox}: Props) {
+export default function MediaCard({media, onUpdateMedia, onDeleteMedia, openLightbox}: Props) {
     const [isEditing, setIsEditing] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [caption, setCaption] = useState(file.caption ?? '');
-    const [date, setDate] = useState(file.date ? getISODate(file.date) : '');
+    const [caption, setCaption] = useState(media.caption ?? '');
+    const [date, setDate] = useState(media.date ? getISODate(media.date) : '');
 
     const cardRef = useRef<HTMLDivElement>(null);
 
@@ -29,44 +29,46 @@ export default function MediaCard({file, onUpdateFile, onDeleteFile, openLightbo
     const ref = useRef<HTMLDivElement>(null);
     const isTruncated = useRef(false);
 
-    let originalCaption = file.caption;
-    let originalDate = file.date ? getISODate(file.date) : '';
+    let originalCaption = media.caption;
+    let originalDate = media.date ? getISODate(media.date) : '';
 
     const handleSave = useCallback(async () => {
-        if (file.status === 'saved') {
-            if (caption && caption !== '' && caption !== file.caption || date && date !== '' && (file.date ? date !== getISODate(file.date) : true)) {
+        if (media.status === 'saved') {
+            if (caption && caption !== '' && caption !== media.caption || date && date !== '' && (media.date ? date !== getISODate(media.date) : true)) {
                 try {
-                    const updatedMedia = await updateMedia(file.id, {
+                    const updatedMedia = await updateMedia(media.id, {
                         caption,
                         date: date ? new Date(date) : undefined
                     });
                     originalCaption = caption;
                     originalDate = date;
 
-                    onUpdateFile(updatedMedia);
+                    onUpdateMedia(updatedMedia);
                 } catch(e) {
+                    console.log(e);
+                    
                     showToast('Une erreur est survenue lors de la sauvegarde du fichier. Veuillez contacter un administrateur.', 'error');
                 }
             }            
             setIsEditing(false);
         } else {
-            const newFile: PendingMedia = {
-                id: file.id,
-                file: file.file,
+            const newMedia: PendingMedia = {
+                id: media.id,
+                file: media.file,
                 caption,
                 date,
-                folderPath: file.folderPath,
-                status: file.status,
-                url: file.url,
-                width: file.width,
-                height: file.height
+                folderPath: media.folderPath,
+                status: media.status,
+                url: media.url,
+                width: media.width,
+                height: media.height
             }
-            onUpdateFile(newFile);
+            onUpdateMedia(newMedia);
             originalCaption = caption;
             originalDate = date;
             setIsEditing(false);
         }
-    }, [caption, date, file, onUpdateFile]);
+    }, [caption, date, media, onUpdateMedia]);
 
     useEffect(() => {
         if (!isEditing) return;
@@ -88,15 +90,15 @@ export default function MediaCard({file, onUpdateFile, onDeleteFile, openLightbo
     }, [isEditing, handleSave]);
 
     async function handleDelete() {
-        if (file.status === 'saved') {
-            await deleteMedia(file.public_id);           
+        if (media.status === 'saved') {
+            await deleteMedia(media.public_id);           
         }
-        onDeleteFile(file);
+        onDeleteMedia(media);
         setIsModalOpen(false);
     }
 
     function handleOpenMediaLightBox() {
-        openLightbox(file.id);
+        openLightbox(media.id);
     }
 
     function cancelEdit() {
@@ -107,13 +109,13 @@ export default function MediaCard({file, onUpdateFile, onDeleteFile, openLightbo
 
     return (
         <div className="relative rounded-xl overflow-hidden border border-white/10 bg-white/5 hover:bg-white/10 transition" ref={cardRef}>
-            {file.status !== 'saved' && (
-                <MediaStatusBadge status={file.status} />
+            {media.status !== 'saved' && (
+                <MediaStatusBadge status={media.status} />
             )}
             <div className="relative aspect-square bg-slate-700 overflow-hidden">
                 <Image
                     alt={caption}
-                    src={file.url}
+                    src={media.url}
                     className="object-cover"
                     sizes="
                         (max-width: 1024px) 33vw,
@@ -161,7 +163,7 @@ export default function MediaCard({file, onUpdateFile, onDeleteFile, openLightbo
                         />
                         <input
                             type="date"
-                            value={date && date !== '' ? getISODate(date) : undefined}
+                            value={date && date !== '' ? getISODate(date) : ''}
                             onChange={(e) => setDate(e.target.value)}
                             className="
                                 w-full px-3 py-2 rounded-lg
@@ -204,7 +206,7 @@ export default function MediaCard({file, onUpdateFile, onDeleteFile, openLightbo
                 onClose={() => setIsModalOpen(false)}
             >
                 <p>Êtes-vous sûr de vouloir supprimer le fichier suivant : </p>
-                <p className="truncate">{file.caption}</p>
+                <p className="truncate">{media.caption}</p>
                 <div className="flex mt-4">
                     <button
                         type="submit"
@@ -229,7 +231,7 @@ function MediaStatusBadge({
     status: "pending" | "saved" | "uploading" | "error";
 }) {
     return (
-        <div className="absolute top-2 right-2">
+        <div className="absolute top-2 right-2 z-10">
             <div
                 className={`
                     w-6 h-6

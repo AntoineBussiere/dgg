@@ -3,27 +3,27 @@ import { CreateMediaDTO, PendingMedia, SavedMedia } from "@/types/media";
 import { useToast } from "../ui/Toast/ToastProvider";
 
 type Props = {
-    importedFiles: PendingMedia[],
+    importedMedias: PendingMedia[],
     selectedFolder: string,
-    onFilesSaving: () => void,
-    onFilesSaved: (medias: SavedMedia[]) => void,
-    onFilesError: () => void
+    onMediasSaving: () => void,
+    onMediasSaved: (medias: SavedMedia[]) => void,
+    onMediasError: () => void
 }
 
-export default function Topbar({importedFiles, selectedFolder, onFilesSaving, onFilesSaved, onFilesError}: Props) {
+export default function Topbar({importedMedias, selectedFolder, onMediasSaving, onMediasSaved, onMediasError}: Props) {
     const { showToast } = useToast();
 
     async function handleSave() {
-        onFilesSaving();
-        const uploadedData = await uploadMany(importedFiles.map(x => x.file), selectedFolder);
+        onMediasSaving();
+        const uploadedData = await uploadMany(importedMedias.map(x => x.file), selectedFolder);
         const medias: CreateMediaDTO[] = [];
 
         for(let i = 0; i < uploadedData.length; i++) {
-            const date = importedFiles[i].date ?? null;
+            const date = importedMedias[i].date ?? null;
             medias.push({
                 url: uploadedData[i].secure_url,
                 bytes: uploadedData[i].bytes,
-                caption: importedFiles[i].caption,
+                caption: importedMedias[i].caption,
                 date: date && date !== '' ? new Date(date) : undefined,
                 folderPath: uploadedData[i].asset_folder as string,
                 format: uploadedData[i].format,
@@ -42,10 +42,10 @@ export default function Topbar({importedFiles, selectedFolder, onFilesSaving, on
         });
 
         if (res.status === 500) {
-            onFilesError();
+            onMediasError();
             showToast('Une erreur est survenue lors de la sauvegarde. Veuillez contacter un administrateur.', 'error');
         } else {
-            onFilesSaved(await res.json());
+            onMediasSaved(await res.json());
             showToast('Les fichiers ont bien été sauvegardés.', 'success');
         }
     }
@@ -56,7 +56,7 @@ export default function Topbar({importedFiles, selectedFolder, onFilesSaving, on
                 {selectedFolder.split('/').join(' / ')}
             </div>
 
-            {importedFiles.length > 0 && (
+            {importedMedias.length > 0 && (
                 <div className="flex gap-3 items-center">
                     <div className="text-sm text-slate-300 px-3 flex">
                         <div className="px-3">
@@ -91,7 +91,7 @@ export default function Topbar({importedFiles, selectedFolder, onFilesSaving, on
                                 />
                             </svg>
                         </div>
-                        {importedFiles.length} fichier{importedFiles.length > 1 && 's'} en attente
+                        {importedMedias.length} fichier{importedMedias.length > 1 && 's'} en attente
                     </div>
 
                     <button className="px-3 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-sm" onClick={handleSave}>

@@ -38,21 +38,14 @@ export default function Sidebar({onSelectedFolder, selectedFolder, folderTree, o
 
 type FolderItemProps = {
     name: string;
-    nbNewFiles: number;
+    nbNewMedias: number;
     active?: boolean;
     onClick: () => void,
     onFolderRenamed: (folderName: string) => void,
     onFolderDelete: () => void
 }
 
-function FolderItem({
-    name,
-    nbNewFiles,
-    active = false,
-    onClick,
-    onFolderRenamed,
-    onFolderDelete
-}: FolderItemProps) {
+function FolderItem({ name, nbNewMedias, active = false, onClick, onFolderRenamed, onFolderDelete }: FolderItemProps) {
     const [isEditing, setIsEditing] = useState(false);
     const [isMenuOpened, setIsMenuOpened] = useState(false);
     const [folderName, setFolderName] = useState(name);
@@ -113,7 +106,7 @@ function FolderItem({
                 {!isEditing && (
                     <div className="flex text-sm text-white/90 py-1">
                         {name}
-                        {nbNewFiles > 0 && (
+                        {nbNewMedias > 0 && (
                             <div className="px-3 relative group inline-flex">
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -155,7 +148,7 @@ function FolderItem({
                                     rounded-md bg-black/90 px-2 py-1
                                     text-xs text-white
                                 ">
-                                    {nbNewFiles} fichier{nbNewFiles > 1 ? 's' : ''} en attente de sauvegarde
+                                    {nbNewMedias} fichier{nbNewMedias > 1 ? 's' : ''} en attente de sauvegarde
                                 </div>
                             </div>
                         )}
@@ -315,7 +308,7 @@ function FolderTree({
                 <div key={index}>
                     <FolderItem
                         name={folder.name}
-                        nbNewFiles={folder.nbNewFiles}
+                        nbNewMedias={folder.nbNewMedias}
                         onClick={() => onFolderSelection(folder.path)}
                         onFolderRenamed={(newFolderName) => onFolderRenamed(folder.path, newFolderName)}
                         active={selectedFolder === folder.path}

@@ -6,14 +6,14 @@ import { useToast } from "../ui/Toast/ToastProvider";
 import { getImageDimensions, getVideoDimensions } from "@/hooks/file";
 
 type Props = {
-    onFilesAdded: (files: PendingMedia[]) => void,
+    onMediasAdded: (medias: PendingMedia[]) => void,
     selectedFolder: string
 }
 
-export default function Dropzone({onFilesAdded, selectedFolder}: Props) {
+export default function Dropzone({onMediasAdded, selectedFolder}: Props) {
     const [isDragging, setIsDragging] = useState(false);
 
-    const inputFileRef = useRef<HTMLInputElement>(null);
+    const inputMediaRef = useRef<HTMLInputElement>(null);
     const inputFolderRef = useRef<HTMLInputElement>(null);
 
     const { showToast } = useToast();
@@ -46,65 +46,65 @@ export default function Dropzone({onFilesAdded, selectedFolder}: Props) {
     const handleDrop = (e: DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         setIsDragging(false);
-        handleFileTransfer(e.dataTransfer?.files);
+        handleMediaTransfer(e.dataTransfer?.files);
     };
 
-    const openFileImport = () => {
-        inputFileRef.current?.click();
+    const openMediaImport = () => {
+        inputMediaRef.current?.click();
     }
 
     const openFolderImport = () => {
         inputFolderRef.current?.click();
     }
 
-    const handleFileImport = (e: ChangeEvent<HTMLInputElement>) => {
+    const handleMediaImport = (e: ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
-        handleFileTransfer(e.target.files);
+        handleMediaTransfer(e.target.files);
     }
 
     const handleFolderImport = (e: ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
-        handleFileTransfer(e.target.files);
+        handleMediaTransfer(e.target.files);
     }
 
-    const handleFileTransfer = async (files: FileList | null) => {
-        if (files && files.length > 0) {
-            const filesArray = filterValidFiles(Array.from(files));
-            const filteredFilesArray = filesArray.filter(x => x.size > 0);
+    const handleMediaTransfer = async (medias: FileList | null) => {
+        if (medias && medias.length > 0) {
+            const mediasArray = filterValidMedias(Array.from(medias));
+            const filteredMediasArray = mediasArray.filter(x => x.size > 0);
 
-            if (filteredFilesArray.length !== filesArray.length) {
-                const nbLostFile = filesArray.length - filteredFilesArray.length;
-                showToast(`${nbLostFile} fichier${nbLostFile > 1 ? 's' : ''} n'${nbLostFile > 1 ? 'ont' : 'a'} pas pu être importé${nbLostFile > 1 ? 's' : ''}. Cela peut être dû à un nom de fichier trop long (30+ caractères)`, 'error');
+            if (filteredMediasArray.length !== mediasArray.length) {
+                const nbLostMedia = mediasArray.length - filteredMediasArray.length;
+                showToast(`${nbLostMedia} fichier${nbLostMedia > 1 ? 's' : ''} n'${nbLostMedia > 1 ? 'ont' : 'a'} pas pu être importé${nbLostMedia > 1 ? 's' : ''}. Cela peut être dû à un nom de fichier trop long (30+ caractères)`, 'error');
             }
 
-            const structuredArrayPromise = filteredFilesArray.map(async file => {
-                const folder = file.webkitRelativePath;
+            const structuredArrayPromise = filteredMediasArray.map(async media => {
+                const folder = media.webkitRelativePath;
                 let width: number, height: number;
-                if (file.type.startsWith('image/')) {
-                    ({ width, height } = await getImageDimensions(file));
+                if (media.type.startsWith('image/')) {
+                    ({ width, height } = await getImageDimensions(media));
                 } else {
-                    ({ width, height } = await getVideoDimensions(file));
+                    ({ width, height } = await getVideoDimensions(media));
                 }
                 
                 return {
                     id: crypto.randomUUID(),
-                    file,
-                    caption: file.name,
+                    file: media,
+                    caption: media.name,
                     folderPath: folder ? selectedFolder + '/' + folder.substring(0, folder.lastIndexOf("/")) : selectedFolder,
                     status: 'pending',
-                    url: URL.createObjectURL(file),
+                    url: URL.createObjectURL(media),
                     width,
                     height
                 } as PendingMedia;
             })
             const structuredArray = await Promise.all(structuredArrayPromise);
             
-            onFilesAdded(structuredArray);
+            onMediasAdded(structuredArray);
         }
     }
 
-    const filterValidFiles = (files: File[]): File[] => {
-        return files.filter(file => file.type.includes('video') || file.type.includes('image'));
+    const filterValidMedias = (medias: File[]): File[] => {
+        return medias.filter(media => media.type.includes('video') || media.type.includes('image'));
     }
 
     return (
@@ -143,10 +143,10 @@ export default function Dropzone({onFilesAdded, selectedFolder}: Props) {
                         </div>
 
                         <div className="flex justify-center gap-3 mt-4">
-                            <button className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-sm" onClick={openFileImport}>
+                            <button className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-sm" onClick={openMediaImport}>
                                 Fichier
                             </button>
-                            <input type="file" className="hidden" ref={inputFileRef} multiple onChange={handleFileImport} accept="image/*, video/*" />
+                            <input type="file" className="hidden" ref={inputMediaRef} multiple onChange={handleMediaImport} accept="image/*, video/*" />
 
                             <button className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-sm" onClick={openFolderImport}>
                                 Dossier

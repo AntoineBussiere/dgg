@@ -1,6 +1,6 @@
 export type FolderTreeNode = {
     name: string;
     path: string;
-    nbNewFiles: number;
+    nbNewMedias: number;
     children: FolderTreeNode[];
 };

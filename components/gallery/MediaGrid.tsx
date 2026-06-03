@@ -6,17 +6,17 @@ import MediaLightBox from "../ui/MediaLightBox";
 import { useState } from "react";
 
 type Props = {
-    importedFiles: PendingMedia[],
+    importedMedias: PendingMedia[],
     savedMedias: SavedMedia[],
-    onUpdateFile: (file: SavedMedia | PendingMedia) => void,
-    onDeleteFile: (file: SavedMedia | PendingMedia) => void
+    onUpdateMedia: (media: SavedMedia | PendingMedia) => void,
+    onDeleteMedia: (media: SavedMedia | PendingMedia) => void
 }
 
-export default function MediaGrid({importedFiles, onUpdateFile, onDeleteFile, savedMedias}: Props) {
+export default function MediaGrid({importedMedias, onUpdateMedia, onDeleteMedia, savedMedias}: Props) {
     const [lightboxOpen, setLightboxOpen] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(-1);
 
-    const allMedias = [...importedFiles, ...savedMedias];
+    const allMedias = [...importedMedias, ...savedMedias];
 
     function openLightBox(mediaId: string) {
         setLightboxOpen(true);
@@ -25,7 +25,7 @@ export default function MediaGrid({importedFiles, onUpdateFile, onDeleteFile, sa
 
     return (
         <div className="space-y-8">
-            {importedFiles.length > 0 && (
+            {importedMedias.length > 0 && (
                 <section className="space-y-4 @container">
                     <div className="flex items-center gap-3">
                         <div className="h-px flex-1 bg-white/10" />
@@ -47,12 +47,12 @@ export default function MediaGrid({importedFiles, onUpdateFile, onDeleteFile, sa
                     </div>
 
                     <div className="grid grid-cols-3 gap-4 @lg:grid-cols-4 @2xl:grid-cols-6">
-                        {importedFiles.map((file, index) => (
+                        {importedMedias.map(media => (
                             <MediaCard
-                                file={file}
-                                key={index}
-                                onUpdateFile={onUpdateFile}
-                                onDeleteFile={onDeleteFile}
+                                media={media}
+                                key={media.id}
+                                onUpdateMedia={onUpdateMedia}
+                                onDeleteMedia={onDeleteMedia}
                                 openLightbox={openLightBox}
                             />
                         ))}
@@ -61,7 +61,7 @@ export default function MediaGrid({importedFiles, onUpdateFile, onDeleteFile, sa
             )}
 
             <section className="space-y-4 @container">
-                {importedFiles.length > 0 && savedMedias.length > 0 && (
+                {importedMedias.length > 0 && savedMedias.length > 0 && (
                     <div className="flex items-center gap-3">
                         <div className="h-px flex-1 bg-white/10" />
 
@@ -83,12 +83,12 @@ export default function MediaGrid({importedFiles, onUpdateFile, onDeleteFile, sa
                 )}
 
                 <div className="grid grid-cols-3 gap-4 @lg:grid-cols-4 @2xl:grid-cols-6">
-                    {savedMedias.map((file, index) => (
+                    {savedMedias.map(media => (
                         <MediaCard
-                            file={file}
-                            key={index}
-                            onUpdateFile={onUpdateFile}
-                            onDeleteFile={onDeleteFile}
+                            media={media}
+                            key={media.id}
+                            onUpdateMedia={onUpdateMedia}
+                            onDeleteMedia={onDeleteMedia}
                             openLightbox={openLightBox}
                         />
                     ))}
