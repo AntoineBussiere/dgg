@@ -32,5 +32,6 @@ export type UpdateMediaDTO = {
 }
 
 export type SavedMedia = Media & {
-    status: 'saved'
+    status: 'saved';
+    new: boolean;
 }

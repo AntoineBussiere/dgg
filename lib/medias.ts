@@ -14,6 +14,7 @@ export async function getMedias(): Promise<SavedMedia[]> {
     return medias.map(media => ({
         ...media,
         status: 'saved',
+        new: false
     }));
 }
 
@@ -26,6 +27,7 @@ export async function updateMedia(id: string, media: UpdateMediaDTO): Promise<Sa
     return {
         ...updatedMedia,
         status: 'saved',
+        new: false
     }
 }
 

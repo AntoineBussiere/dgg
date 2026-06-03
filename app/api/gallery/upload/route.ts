@@ -24,6 +24,7 @@ export async function POST(req: Request) {
         return NextResponse.json(createdMedias.map(media => ({
             ...media,
             status: 'saved',
+            new: true
         })), {status: 200});
     } catch (e) {
         console.error(e);

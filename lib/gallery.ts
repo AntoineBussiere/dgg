@@ -26,7 +26,7 @@ export function buildFolderTree(
                     name: part,
                     path: currentPath,
                     children: [],
-                    nbNewFiles: 0
+                    nbNewMedias: 0
                 };
 
                 currentLevel.push(existing);
@@ -38,7 +38,7 @@ export function buildFolderTree(
                 isLastPart &&
                 media.status !== "saved"
             ) {
-                existing.nbNewFiles += 1;
+                existing.nbNewMedias += 1;
             }
 
             currentLevel = existing.children;
@@ -49,7 +49,7 @@ export function buildFolderTree(
 }
 
 export function buildEmptyFolderTree(): FolderTreeNode[] {
-    return [{children: [], name: 'Discjonctés', path: 'Discjonctés', nbNewFiles: 0}]
+    return [{children: [], name: 'Discjonctés', path: 'Discjonctés', nbNewMedias: 0}]
 }
 
 export function renameFolder<T extends SavedMedia | PendingMedia>(medias: T[], oldFolderName: string, newFolderName: string) {

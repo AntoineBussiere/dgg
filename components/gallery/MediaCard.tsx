@@ -112,6 +112,9 @@ export default function MediaCard({media, onUpdateMedia, onDeleteMedia, openLigh
             {media.status !== 'saved' && (
                 <MediaStatusBadge status={media.status} />
             )}
+            {media.status === 'saved' && media.new && (
+                <MediaStatusBadge status={'new'} />
+            )}
             <div className="relative aspect-square bg-slate-700 overflow-hidden">
                 <Image
                     alt={caption}
@@ -228,7 +231,7 @@ export default function MediaCard({media, onUpdateMedia, onDeleteMedia, openLigh
 function MediaStatusBadge({
     status,
 }: {
-    status: "pending" | "saved" | "uploading" | "error";
+    status: "pending" | "saved" | "uploading" | "error" | "new";
 }) {
     return (
         <div className="absolute top-2 right-2 z-10">
@@ -252,7 +255,9 @@ function MediaStatusBadge({
                                 ? "bg-emerald-400"
                                 : status === "uploading"
                                 ? "bg-blue-400 animate-pulse"
-                                : "bg-red-400 animate-pulse"
+                                : status === "error"
+                                ? "bg-red-400 animate-pulse"
+                                : "bg-emerald-400"
                         }
                     `}
                 />
