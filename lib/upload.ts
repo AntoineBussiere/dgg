@@ -27,8 +27,11 @@ export async function uploadToCloudinary(file: File, folder: string): Promise<Up
     return await res.json();
 }
 
-export async function uploadMany(files: File[], folder: string) {
+export async function uploadMany(files: File[], folder: string, onProgress?: (progress: number) => void) {
     const CHUNK_SIZE = 5;
+
+    const total = files.length;
+    let completed = 0;
 
     const results = [];
 
@@ -36,11 +39,20 @@ export async function uploadMany(files: File[], folder: string) {
         const chunk = files.slice(i, i + CHUNK_SIZE);
 
         const uploaded = await Promise.all(
-            chunk.map(file => uploadToCloudinary(file, folder))
+            chunk.map(async file => {
+                const res = await uploadToCloudinary(file, folder);
+
+                completed++;
+                onProgress?.((completed / total) * 100);
+
+                return res;
+            })
         );
 
         results.push(...uploaded);
     }
+
+    onProgress?.(100);
 
     return results;
 }

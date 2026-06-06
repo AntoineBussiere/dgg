@@ -1,6 +1,10 @@
+"use client"
+
 import { uploadMany } from "@/lib/upload";
 import { CreateMediaDTO, PendingMedia, SavedMedia } from "@/types/media";
 import { useToast } from "../ui/Toast/ToastProvider";
+import Loader from "../ui/Loader";
+import { useState } from "react";
 
 type Props = {
     importedMedias: PendingMedia[],
@@ -13,9 +17,14 @@ type Props = {
 export default function Topbar({importedMedias, selectedFolder, onMediasSaving, onMediasSaved, onMediasError}: Props) {
     const { showToast } = useToast();
 
+    const [loading, setLoading] = useState(false);
+    const [progress, setProgress] = useState(0);
+
     async function handleSave() {
+        setLoading(true);
+        setProgress(0);
         onMediasSaving();
-        const uploadedData = await uploadMany(importedMedias.map(x => x.file), selectedFolder);
+        const uploadedData = await uploadMany(importedMedias.map(x => x.file), selectedFolder, setProgress);
         const medias: CreateMediaDTO[] = [];
 
         for(let i = 0; i < uploadedData.length; i++) {
@@ -48,6 +57,8 @@ export default function Topbar({importedMedias, selectedFolder, onMediasSaving, 
             onMediasSaved(await res.json());
             showToast('Les fichiers ont bien été sauvegardés.', 'success');
         }
+
+        setLoading(false);
     }
 
     return (
@@ -99,6 +110,7 @@ export default function Topbar({importedMedias, selectedFolder, onMediasSaving, 
                     </button>
                 </div>
             )} 
+            <Loader show={loading} progress={progress} text="Upload en cours..." />
         </div>
     );
 }
