@@ -4,7 +4,7 @@ import Dropzone from "@/components/gallery/Dropzone";
 import MediaGrid from "@/components/gallery/MediaGrid";
 import Sidebar from "@/components/gallery/Sidebar";
 import Topbar from "@/components/gallery/Topbar";
-import { buildFolderTree, renameFolder } from "@/lib/gallery";
+import { buildFolderTree, buildRootTreeNode, createNode, renameFolder } from "@/lib/gallery";
 import { deleteFolder } from "@/lib/medias";
 import { FolderTreeNode } from "@/types/folder-tree";
 import { PendingMedia, SavedMedia } from "@/types/media";
@@ -13,35 +13,22 @@ import { useToast } from "../ui/Toast/ToastProvider";
 import { updateAndSort } from "@/hooks/media";
 
 type Props = {
-    initialMedias: SavedMedia[],
-    initialFolderTree: FolderTreeNode[]
+    initialMedias: SavedMedia[]
 }
 
-export default function GalleryPage({initialMedias, initialFolderTree}: Props) {
+export default function GalleryPage({initialMedias}: Props) {
     const [savedMedias, setSavedMedias] = useState<SavedMedia[]>(initialMedias);
-    const [folderTree, setFolderTree] = useState<FolderTreeNode[]>(initialFolderTree);
     const [importedMedias, setImportedMedias] = useState<PendingMedia[]>([]);
-    const [selectedFolder, setSelectedFolder] = useState<string>('Discjonctés');
+    const [selectedFolder, setSelectedFolder] = useState<FolderTreeNode>(buildRootTreeNode());
             
     const { showToast } = useToast();
 
     function handleMedias(medias: PendingMedia[]) {
-        setImportedMedias(prev => {
-            const updated = [...prev, ...medias];
-
-            setFolderTree(
-                buildFolderTree([
-                    ...savedMedias,
-                    ...updated
-                ])
-            );
-
-            return updated;
-        });
+        setImportedMedias(prev => [...prev, ...medias]);
     }
 
-    function handleFolderSelection(name: string) {
-        setSelectedFolder(name);
+    function handleFolderSelection(treeNode: FolderTreeNode) {
+        setSelectedFolder(treeNode);
     }
 
     function updateMedia(updatedMedia: SavedMedia | PendingMedia) {
@@ -63,35 +50,23 @@ export default function GalleryPage({initialMedias, initialFolderTree}: Props) {
 
     function handleMediasSaved(savedMedias: SavedMedia[]) {
         setImportedMedias([]);
-        setSavedMedias(prev => {
-            const updated = [...prev, ...savedMedias];
-            rebuildFolderTree(updated, []);
-            return updated;
-        });
+        setSavedMedias(prev => [...prev, ...savedMedias]);
     }
 
     function deleteMedia(media: SavedMedia | PendingMedia) {
         if (media.status === 'saved') {
-            setSavedMedias(prev => {
-                const filteredMedias = prev.filter(x => x.id !== media.id)
-                rebuildFolderTree(filteredMedias, importedMedias);
-                return filteredMedias;
-            });
+            setSavedMedias(prev => prev.filter(x => x.id !== media.id));
         } else {
-            setImportedMedias(prev => {
-                const filteredMedias = prev.filter(x => x.id !== media.id);
-                rebuildFolderTree(savedMedias, filteredMedias);
-                return filteredMedias;
-            });
+            setImportedMedias(prev => prev.filter(x => x.id !== media.id));
         }
     }
 
     function getSavedMediasOfSelectedFolder() {
-        return savedMedias.filter(x => x.folderPath === selectedFolder);
+        return savedMedias.filter(x => x.folderPath === selectedFolder.path);
     }
 
     function getImportedMediasOfSelectedFolder() {
-        return importedMedias.filter(x => x.folderPath === selectedFolder);
+        return importedMedias.filter(x => x.folderPath === selectedFolder.path);
     }
 
     async function handleFolderRename(oldFolderPath: string, newFolderName: string) {
@@ -100,9 +75,12 @@ export default function GalleryPage({initialMedias, initialFolderTree}: Props) {
         setSavedMedias(renamedsavedMedias);
         const renamedImportedMedias = renameFolder(importedMedias, oldFolderPath, newFolderPath);
         setImportedMedias(renamedImportedMedias);
-        rebuildFolderTree(renamedsavedMedias, renamedImportedMedias);
-        if (selectedFolder === oldFolderPath) {
-            setSelectedFolder(newFolderPath);
+        if (selectedFolder.path === oldFolderPath) {
+            setSelectedFolder(prev => {
+                prev.path = newFolderPath;
+                prev.name = newFolderName;
+                return prev;
+            });
         }
 
         // rename only if DB saved medias have folder path changed
@@ -121,49 +99,26 @@ export default function GalleryPage({initialMedias, initialFolderTree}: Props) {
         }
     }
 
-    async function handleFolderDelete(folderPath: string) {
-        try {
-            await deleteFolder(folderPath);
-
-            if (selectedFolder.includes(folderPath)) {
-                setSelectedFolder(folderPath.substring(0, folderPath.lastIndexOf("/")));
-            }
-            rebuildFolderTree(savedMedias, importedMedias);
-        } catch (e) {
-            showToast('Une erreur est survenue lors de la suppression. Veuillez contacter un administrateur.', 'error')
-        }
-    }
-
-    function rebuildFolderTree(medias: SavedMedia[], imported: PendingMedia[]) {
-        setFolderTree(
-            buildFolderTree([
-                ...medias,
-                ...imported
-            ])
-        );
-    }
-
     return (
         <main className="h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 text-white flex">
             <Sidebar
                 selectedFolder={selectedFolder}
-                folderTree={folderTree}
+                medias={[...savedMedias, ...importedMedias]}
                 onSelectedFolder={handleFolderSelection}
                 onFolderRenamed={handleFolderRename}
-                onFolderDelete={handleFolderDelete}
             />
 
             <div className="flex-1 flex flex-col h-full overflow-hidden">
                 <Topbar
                     importedMedias={importedMedias}
-                    selectedFolder={selectedFolder}
+                    selectedFolder={selectedFolder.path}
                     onMediasSaving={() => handleMediasStatus('uploading')}
                     onMediasSaved={handleMediasSaved}
                     onMediasError={() => handleMediasStatus('error')}
                 />
 
                 <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                    <Dropzone onMediasAdded={handleMedias} selectedFolder={selectedFolder} />
+                    <Dropzone onMediasAdded={handleMedias} selectedFolder={selectedFolder.path} />
 
                     <MediaGrid
                         importedMedias={getImportedMediasOfSelectedFolder()}
