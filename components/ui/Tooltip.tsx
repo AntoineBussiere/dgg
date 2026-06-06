@@ -13,17 +13,12 @@ export function Tooltip({ content, children, disabled = false }: Props) {
     const triggerRef = useRef<HTMLDivElement>(null);
     const tooltipRef = useRef<HTMLDivElement>(null);
 
-    const [mounted, setMounted] = useState(false);
     const [open, setOpen] = useState(false);
 
     const [position, setPosition] = useState({
         top: 0,
         left: 0,
     });
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
 
     const updatePosition = () => {
         if (!triggerRef.current || !tooltipRef.current) return;
@@ -74,7 +69,7 @@ export function Tooltip({ content, children, disabled = false }: Props) {
                 {children}
             </div>
 
-            {mounted && open && !disabled && createPortal(
+            {open && !disabled && createPortal(
                 <div
                     ref={tooltipRef}
                     style={{

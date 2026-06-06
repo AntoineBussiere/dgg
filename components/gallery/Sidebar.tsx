@@ -313,6 +313,7 @@ function FolderItem({ name, nbNewMedias = 0, active = false, isCreatingFolder = 
                         type="text"
                         defaultValue={folderName}
                         name="folderName"
+                        maxLength={50}
                         onKeyDown={(e) => {if(e.key === 'Enter') { saveFolderEdit() }}}
                         onChange={(e) => setFolderName(e.target.value)}
                         autoFocus

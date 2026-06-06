@@ -46,6 +46,7 @@ export default function AuthForm() {
                     name="username"
                     placeholder="Ton nom d'utilisateur"
                     autoComplete="off"
+                    maxLength={30}
                     className="
                         w-full
                         rounded-xl

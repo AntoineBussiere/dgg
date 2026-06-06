@@ -21,13 +21,12 @@ export default function MediaCard({media, onUpdateMedia, onDeleteMedia, openLigh
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [caption, setCaption] = useState(media.caption ?? '');
     const [date, setDate] = useState(media.date ? getISODate(media.date) : '');
+    const [isTruncated, setIsTruncated] = useState(false);
 
     const cardRef = useRef<HTMLDivElement>(null);
+    const tooltipRef = useRef<HTMLDivElement>(null);
 
     const { showToast } = useToast();
-
-    const ref = useRef<HTMLDivElement>(null);
-    const isTruncated = useRef(false);
 
     let originalCaption = media.caption;
     let originalDate = media.date ? getISODate(media.date) : '';
@@ -89,6 +88,19 @@ export default function MediaCard({media, onUpdateMedia, onDeleteMedia, openLigh
         };
     }, [isEditing, handleSave]);
 
+    useEffect(() => {
+        const el = tooltipRef.current;
+        if (!el) return;
+
+        const resizeObserver = new ResizeObserver(() => {
+            setIsTruncated(el.scrollWidth > el.clientWidth);
+        });
+
+        resizeObserver.observe(el);
+
+        return () => resizeObserver.disconnect();
+    }, []);
+
     async function handleDelete() {
         if (media.status === 'saved') {
             await deleteMedia(media.public_id);           
@@ -132,14 +144,10 @@ export default function MediaCard({media, onUpdateMedia, onDeleteMedia, openLigh
             <div className="p-3 space-y-1">
                 {!isEditing ? (
                     <div>
-                        <Tooltip content={caption} disabled={!isTruncated.current}>
+                        <Tooltip content={caption} disabled={!isTruncated}>
                             <div
-                                ref={ref}
+                                ref={tooltipRef}
                                 className="w-full truncate"
-                                onMouseEnter={() => {
-                                    if (!ref.current) return;
-                                    isTruncated.current = ref.current.scrollWidth > ref.current.clientWidth;
-                                }}
                             >
                                 {caption}
                             </div>
@@ -155,6 +163,7 @@ export default function MediaCard({media, onUpdateMedia, onDeleteMedia, openLigh
                             value={caption}
                             onChange={(e) => setCaption(e.target.value)}
                             placeholder="Légende"
+                            maxLength={255}
                             autoFocus
                             className="
                                 w-full px-3 py-2 rounded-lg
@@ -251,13 +260,11 @@ function MediaStatusBadge({
                         ${
                             status === "pending"
                                 ? "bg-yellow-400"
-                                : status === "saved"
+                                : status === "saved" || status === "new"
                                 ? "bg-emerald-400"
                                 : status === "uploading"
                                 ? "bg-blue-400 animate-pulse"
-                                : status === "error"
-                                ? "bg-red-400 animate-pulse"
-                                : "bg-emerald-400"
+                                : "bg-red-400 animate-pulse"
                         }
                     `}
                 />
