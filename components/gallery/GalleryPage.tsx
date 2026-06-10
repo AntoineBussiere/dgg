@@ -2,10 +2,9 @@
 
 import Dropzone from "@/components/gallery/Dropzone";
 import MediaGrid from "@/components/gallery/MediaGrid";
-import Sidebar from "@/components/gallery/Sidebar";
+import Sidebar from "@/components/gallery/Sidebar/Sidebar";
 import Topbar from "@/components/gallery/Topbar";
-import { buildFolderTree, buildRootTreeNode, createNode, renameFolder } from "@/lib/gallery";
-import { deleteFolder } from "@/lib/medias";
+import { buildRootTreeNode, renameFolder } from "@/lib/gallery";
 import { FolderTreeNode } from "@/types/folder-tree";
 import { PendingMedia, SavedMedia } from "@/types/media";
 import { useState } from "react";

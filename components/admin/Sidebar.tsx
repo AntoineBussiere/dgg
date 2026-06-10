@@ -10,6 +10,10 @@ const links = [
         label: "Galerie",
     },
     {
+        href: "/admin/gallery-viewer",
+        label: "Visionnage de galerie",
+    },
+    {
         href: "/admin/users",
         label: "Utilisateurs",
     },

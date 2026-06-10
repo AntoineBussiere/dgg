@@ -1,5 +1,4 @@
 import GalleryPage from "@/components/gallery/GalleryPage";
-import { buildEmptyFolderTree, buildFolderTree } from "@/lib/gallery";
 import { getMedias } from "@/lib/medias";
 
 export default async function Page() {

@@ -30,7 +30,8 @@ export function buildFolderTree(
                         name: part,
                         path: currentPath,
                         children: [],
-                        nbNewMedias: 0
+                        nbNewMedias: 0,
+                        nbMedias: medias.filter(x => x.folderPath === currentPath).length
                     };
     
                     currentLevel.push(existing);
@@ -58,11 +59,11 @@ export function buildEmptyFolderTree(): FolderTreeNode[] {
 }
 
 export function buildRootTreeNode(): FolderTreeNode {
-    return {children: [], name: 'Discjonctés', path: 'Discjonctés', nbNewMedias: 0};
+    return {children: [], name: 'Discjonctés', path: 'Discjonctés', nbNewMedias: 0, nbMedias: 0};
 }
 
 export function createNode(name: string, path: string): FolderTreeNode {
-    return {children: [], name, path, nbNewMedias: 0};
+    return {children: [], name, path, nbNewMedias: 0, nbMedias: 0};
 }
 
 export function renameFolder<T extends SavedMedia | PendingMedia>(medias: T[], oldFolderName: string, newFolderName: string) {
@@ -86,4 +87,14 @@ export function folderPathExists(nodes: FolderTreeNode[], searchedPath: string):
     }
 
     return false;
+}
+
+export function findTreeNode(nodes: FolderTreeNode[], searchedPath: string): FolderTreeNode | null {
+    for (const node of nodes) {
+        if (node.path === searchedPath) return node;
+
+        const child = findTreeNode(node.children, searchedPath);
+        if (child) return child;
+    }
+    return null;
 }

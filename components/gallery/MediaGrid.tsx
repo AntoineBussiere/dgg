@@ -13,14 +13,16 @@ type Props = {
 }
 
 export default function MediaGrid({importedMedias, onUpdateMedia, onDeleteMedia, savedMedias}: Props) {
-    const [lightboxOpen, setLightboxOpen] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(-1);
 
     const allMedias = [...importedMedias, ...savedMedias];
 
     function openLightBox(mediaId: string) {
-        setLightboxOpen(true);
         setSelectedIndex(allMedias.findIndex(x => x.id === mediaId)); 
+    }
+
+    function handleLightBoxClosure() {
+        setSelectedIndex(-1);
     }
 
     return (
@@ -94,12 +96,13 @@ export default function MediaGrid({importedMedias, onUpdateMedia, onDeleteMedia,
                     ))}
                 </div>
             </section>
-            <MediaLightBox
-                open={lightboxOpen}
-                medias={allMedias}
-                index={selectedIndex}
-                onClose={() => {setSelectedIndex(-1); setLightboxOpen(false);}}
-            />
+            {selectedIndex >= 0 && (
+                <MediaLightBox
+                    medias={allMedias}
+                    index={selectedIndex}
+                    onClose={handleLightBoxClosure}
+                />
+            )}
         </div>
     );
 }
