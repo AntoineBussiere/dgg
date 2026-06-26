@@ -1,36 +1,137 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Disc Golf Gallery
 
-## Getting Started
+Application web permettant la gestion et l'affichage d'une galerie photo pour une association sportive.
 
-First, run the development server:
+Le projet est composé d'une interface publique destinée à l'affichage des photos sous forme de diaporama ainsi que d'un back-office permettant aux administrateurs de gérer les utilisateurs et le contenu de la galerie.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Aperçu
+
+### Galerie publique
+
+![](public/front-gallery.png)
+
+### Back-office
+
+| Galerie | Visionnage | Utilisateurs |
+|---------|------------|--------------|
+| ![](public/admin-gallery.png) | ![](public/gallery.png) | ![](public/user.png) |
+
+## Fonctionnalités
+
+### Galerie publique
+
+- Affichage des photos en plein écran
+- Diaporama automatique
+- Intégration via iframe sur le site de l'association
+- Affichage optimisé pour un écran dédié
+
+### Back-office
+
+- Authentification des administrateurs
+- Gestion des utilisateurs
+- Upload de photos
+- Modification des métadonnées d'une photo
+- Suppression de photos
+- Prévisualisation des images
+
+## Stack technique
+
+- Next.js
+- React
+- TypeScript
+- PostgreSQL
+- Prisma
+- Redis (Upstash)
+- Cloudinary
+- Vercel
+
+## Architecture
+
+```
+                    Client
+                       │
+                       ▼
+                Next.js / React
+                       │
+        ┌──────────────┼──────────────┐
+        ▼              ▼              ▼
+    PostgreSQL      Redis         Cloudinary
+    Métadonnées     Sessions      Images
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Déploiement
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Le projet est déployé sur **Vercel**.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Les variables d'environnement nécessaires sont :
 
-## Learn More
+```env
+DATABASE_URL=
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Installation
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+git clone https://github.com/...
+cd dgg
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+pnpm install
 
-## Deploy on Vercel
+pnpm dev
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+L'application est ensuite accessible sur :
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+http://localhost:3000
+```
+
+## Structure du projet
+
+```
+app/
+└─admin/
+└─api/
+└─gallery/
+└─login/
+components/
+hooks/
+lib/
+prisma/
+types/
+```
+
+## Objectifs du projet
+
+Ce projet a été développé dans le cadre d'une mission bénévole pour une association sportive.
+
+Les principaux objectifs étaient :
+
+- migration de l'ancienne galerie sur le nouveau site
+- proposer un outil d'administration simple
+- permettre un affichage automatique des photos sur le site de l'association
+- disposer d'une solution facilement déployable et peu coûteuse
+
+## Choix techniques
+
+- **Next.js** pour bénéficier du routage par fichiers et des API Routes dans une seule application.
+- **Prisma** pour simplifier l'accès aux données et les migrations de base de données.
+- **PostgreSQL** pour le stockage relationnel des métadonnées.
+- **Redis (Upstash)** pour stocker les sessions utilisateur avec une faible latence.
+- **Cloudinary** pour externaliser le stockage et l'optimisation des images.
+- **Vercel** pour un déploiement continu et une intégration native avec Next.js.
+
+## Pistes d'amélioration
+
+- Recherche avancée
+- Compression automatique des images
+- Sélection multiple de médias pour suppression ou téléchargement
+
+## Auteur
+
+Développé par Antoine Bussière.
