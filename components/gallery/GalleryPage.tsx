@@ -69,18 +69,7 @@ export default function GalleryPage({initialMedias}: Props) {
     }
 
     async function handleFolderRename(oldFolderPath: string, newFolderName: string) {
-        const newFolderPath = oldFolderPath.substring(0, oldFolderPath.lastIndexOf("/")) + '/' + newFolderName
-        const renamedsavedMedias = renameFolder(savedMedias, oldFolderPath, newFolderPath);
-        setSavedMedias(renamedsavedMedias);
-        const renamedImportedMedias = renameFolder(importedMedias, oldFolderPath, newFolderPath);
-        setImportedMedias(renamedImportedMedias);
-        if (selectedFolder.path === oldFolderPath) {
-            setSelectedFolder(prev => {
-                prev.path = newFolderPath;
-                prev.name = newFolderName;
-                return prev;
-            });
-        }
+        const newFolderPath = oldFolderPath.substring(0, oldFolderPath.lastIndexOf("/")) + '/' + newFolderName;
 
         // rename only if DB saved medias have folder path changed
         if (savedMedias.some(x => x.folderPath === oldFolderPath)) {
@@ -94,7 +83,21 @@ export default function GalleryPage({initialMedias}: Props) {
 
             if (res.status !== 200) {
                 showToast('Une erreur est survenue lors de la sauvegarde. Veuillez contacter un administrateur.', 'error');
+            } else {
+                showToast('Le dossier a bien été renommé.', 'success');
             }
+        }
+
+        const renamedsavedMedias = renameFolder(savedMedias, oldFolderPath, newFolderPath);
+        setSavedMedias(renamedsavedMedias);
+        const renamedImportedMedias = renameFolder(importedMedias, oldFolderPath, newFolderPath);
+        setImportedMedias(renamedImportedMedias);
+        if (selectedFolder.path === oldFolderPath) {
+            setSelectedFolder(prev => {
+                prev.path = newFolderPath;
+                prev.name = newFolderName;
+                return prev;
+            });
         }
     }
 
