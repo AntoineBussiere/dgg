@@ -13,7 +13,8 @@ type Props = {
     selectedFolder: FolderTreeNode,
     medias: (PendingMedia | SavedMedia)[],
     onSelectedFolder: (selectedFolder: FolderTreeNode) => void,
-    onFolderRenamed: (folderPath: string, newFolderName: string) => void
+    onFolderRenamed: (folderPath: string, newFolderName: string) => void,
+    onFolderDeleted: (folderPath: string) => void
 }
 
 type newFolder = {
@@ -21,7 +22,7 @@ type newFolder = {
     name: string;
 }
 
-export default function Sidebar({onSelectedFolder, selectedFolder, medias, onFolderRenamed}: Props) {
+export default function Sidebar({selectedFolder, medias, onSelectedFolder, onFolderRenamed, onFolderDeleted}: Props) {
     const { showToast } = useToast();
     const [isCreatingFolder, setIsCreatingFolder] = useState(false);
     const [creatingFolder, setCreatingFolder] = useState<newFolder | null>(null);
@@ -48,9 +49,10 @@ export default function Sidebar({onSelectedFolder, selectedFolder, medias, onFol
             if (selectedFolder.path.includes(folderPath)) {
                 onSelectedFolder(folderTree[0]);
             }
-            buildFolderTree(medias);
+            onFolderDeleted(folderPath);
+            showToast('Le dossier a bien été supprimé.', 'success');
         } catch (e) {
-            showToast('Une erreur est survenue lors de la suppression. Veuillez contacter un administrateur.', 'error')
+            showToast('Une erreur est survenue lors de la suppression. Veuillez contacter un administrateur.', 'error');
         }
     }
 

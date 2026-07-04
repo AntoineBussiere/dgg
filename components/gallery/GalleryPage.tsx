@@ -101,6 +101,11 @@ export default function GalleryPage({initialMedias}: Props) {
         }
     }
 
+    function handleFolderDelete(folderPath: string) {
+        setImportedMedias(prev => prev.filter(x => !x.folderPath.startsWith(folderPath)));
+        setSavedMedias(prev => prev.filter(x => !x.folderPath.startsWith(folderPath)));
+    }
+
     return (
         <main className="h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 text-white flex">
             <Sidebar
@@ -108,6 +113,7 @@ export default function GalleryPage({initialMedias}: Props) {
                 medias={[...savedMedias, ...importedMedias]}
                 onSelectedFolder={handleFolderSelection}
                 onFolderRenamed={handleFolderRename}
+                onFolderDeleted={handleFolderDelete}
             />
 
             <div className="flex-1 flex flex-col h-full overflow-hidden">
