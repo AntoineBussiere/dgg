@@ -28,8 +28,6 @@ export default function GalleryPage({initialMedias}: Props) {
 
     function handleFolderSelection(treeNode: FolderTreeNode) {
         setSelectedFolder(treeNode);
-        console.log(treeNode);
-        
     }
 
     function updateMedia(updatedMedia: SavedMedia | PendingMedia) {
