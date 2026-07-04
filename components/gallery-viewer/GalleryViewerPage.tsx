@@ -37,7 +37,7 @@ export default function GalleryViewerPage({medias, theme, mode}: Props) {
     return (
         <div className={`flex ${mode === "fullscreen" ? "h-screen" : "h-full"} flex-col overflow-hidden rounded-xl`} data-theme={theme}>
             <GalleryHeader
-                medias={medias}
+                medias={selectedMedias}
             />
             <FolderBreadcrumb
                 selectedFolder={selectedTreeNode.path}

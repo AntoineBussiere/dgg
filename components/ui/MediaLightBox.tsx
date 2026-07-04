@@ -51,7 +51,7 @@ export default function MediaLightBox({ medias, index, onClose, diapo = false }:
         intervalRef.current = null;
     }
 
-    function handleMouseMove() {
+    function handleMouseInterraction() {
         if (!diapo) return;
 
         setControlsVisible(true);
@@ -140,7 +140,8 @@ export default function MediaLightBox({ medias, index, onClose, diapo = false }:
                 diapo && !controlsVisible ? "cursor-none" : "cursor-default"
             }`}
             ref={overlayRef}
-            onMouseMove={handleMouseMove}
+            onMouseMove={handleMouseInterraction}
+            onMouseDown={handleMouseInterraction}
         >
             <div
                 className={`
