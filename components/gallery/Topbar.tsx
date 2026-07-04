@@ -5,6 +5,7 @@ import { CreateMediaDTO, PendingMedia, SavedMedia } from "@/types/media";
 import { useToast } from "../ui/Toast/ToastProvider";
 import Loader from "../ui/Loader";
 import { useState } from "react";
+import { revalidatePath } from "next/cache";
 
 type Props = {
     importedMedias: PendingMedia[],
@@ -59,6 +60,10 @@ export default function Topbar({importedMedias, selectedFolder, onMediasSaving, 
         }
 
         setLoading(false);
+        
+        revalidatePath("/admin");
+        revalidatePath("/admin/gallery");
+        revalidatePath("/admin/gallery-viewer");
     }
 
     return (
