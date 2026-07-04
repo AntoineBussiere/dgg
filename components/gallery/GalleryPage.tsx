@@ -9,7 +9,7 @@ import { FolderTreeNode } from "@/types/folder-tree";
 import { PendingMedia, SavedMedia } from "@/types/media";
 import { useState } from "react";
 import { useToast } from "../ui/Toast/ToastProvider";
-import { updateAndSort } from "@/hooks/media";
+import { sortMedias, updateAndSort } from "@/hooks/media";
 
 type Props = {
     initialMedias: SavedMedia[]
@@ -28,6 +28,8 @@ export default function GalleryPage({initialMedias}: Props) {
 
     function handleFolderSelection(treeNode: FolderTreeNode) {
         setSelectedFolder(treeNode);
+        console.log(treeNode);
+        
     }
 
     function updateMedia(updatedMedia: SavedMedia | PendingMedia) {
@@ -49,7 +51,7 @@ export default function GalleryPage({initialMedias}: Props) {
 
     function handleMediasSaved(savedMedias: SavedMedia[]) {
         setImportedMedias([]);
-        setSavedMedias(prev => [...prev, ...savedMedias]);
+        setSavedMedias(prev => sortMedias([...prev, ...savedMedias]));
     }
 
     function deleteMedia(media: SavedMedia | PendingMedia) {
@@ -89,9 +91,9 @@ export default function GalleryPage({initialMedias}: Props) {
         }
 
         const renamedsavedMedias = renameFolder(savedMedias, oldFolderPath, newFolderPath);
-        setSavedMedias(renamedsavedMedias);
+        setSavedMedias(sortMedias(renamedsavedMedias));
         const renamedImportedMedias = renameFolder(importedMedias, oldFolderPath, newFolderPath);
-        setImportedMedias(renamedImportedMedias);
+        setImportedMedias(sortMedias(renamedImportedMedias));
         if (selectedFolder.path === oldFolderPath) {
             setSelectedFolder(prev => {
                 prev.path = newFolderPath;
@@ -102,8 +104,8 @@ export default function GalleryPage({initialMedias}: Props) {
     }
 
     function handleFolderDelete(folderPath: string) {
-        setImportedMedias(prev => prev.filter(x => !x.folderPath.startsWith(folderPath)));
-        setSavedMedias(prev => prev.filter(x => !x.folderPath.startsWith(folderPath)));
+        setImportedMedias(prev => prev.filter(x => x.folderPath !== folderPath));
+        setSavedMedias(prev => prev.filter(x => !x.public_id.startsWith(folderPath + '/')));
     }
 
     return (

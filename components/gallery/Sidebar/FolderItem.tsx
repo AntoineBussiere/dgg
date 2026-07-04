@@ -7,14 +7,13 @@ type FolderItemProps = {
     nbNewMedias?: number;
     active?: boolean;
     isCreatingFolder?: boolean;
-    isNew?: boolean;
     onClick: () => void,
     onFolderRenamed: (folderName: string) => void,
     onFolderDelete?: () => void,
     onRemoveNewFolder: () => void
 }
 
-export function FolderItem({ name, nbNewMedias = 0, active = false, isCreatingFolder = false, isNew = false, onClick, onFolderRenamed, onFolderDelete, onRemoveNewFolder }: FolderItemProps) {
+export function FolderItem({ name, nbNewMedias = 0, active = false, isCreatingFolder = false, onClick, onFolderRenamed, onFolderDelete, onRemoveNewFolder }: FolderItemProps) {
     const [isEditing, setIsEditing] = useState(false);
     const [isMenuOpened, setIsMenuOpened] = useState(false);
     const [folderName, setFolderName] = useState(name);
@@ -172,6 +171,7 @@ export function FolderItem({ name, nbNewMedias = 0, active = false, isCreatingFo
                         onKeyDown={(e) => {if(e.key === 'Enter') { saveFolderEdit() }}}
                         onChange={(e) => setFolderName(e.target.value)}
                         autoFocus
+                        autoComplete="off"
                         className="
                             w-full rounded-md
                             border border-white/10

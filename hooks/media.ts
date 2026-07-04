@@ -2,19 +2,36 @@ import { PendingMedia, SavedMedia } from "@/types/media";
 
 export function sortMedias<T extends PendingMedia | SavedMedia>(medias: T[]): T[] {
     return [...medias].sort((a, b) => {
-        if (a.date && b.date) {
-            return new Date(b.date).getTime() - new Date(a.date).getTime();
+        // 1. folderPath ASC
+        if (a.folderPath !== b.folderPath) {
+            return a.folderPath.localeCompare(b.folderPath);
         }
 
-        if (!a.date && b.date) return 1;
-        if (a.date && !b.date) return -1;
+        // 2. date DESC (si présente)
+        const dateA = a.date ? new Date(a.date).getTime() : null;
+        const dateB = b.date ? new Date(b.date).getTime() : null;
 
-        if (a.status === 'saved' && b.status === 'saved') {
-            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-        } else {
-            return 1;
+        if (dateA !== null && dateB !== null) {
+            return dateB - dateA;
         }
 
+        if (dateA !== null && dateB === null) return -1;
+        if (dateA === null && dateB !== null) return 1;
+
+        // 3. fallback uniquement pour saved
+        if (a.status === "saved" && b.status === "saved") {
+            return (
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime()
+            );
+        }
+
+        // 4. fallback cross-status (stable order)
+        if (a.status !== b.status) {
+            return a.status === "saved" ? -1 : 1;
+        }
+
+        return 0;
     });
 }
 

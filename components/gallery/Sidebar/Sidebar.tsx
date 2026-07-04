@@ -30,9 +30,11 @@ export default function Sidebar({selectedFolder, medias, onSelectedFolder, onFol
     const folderTree = useMemo(
         () => {
             const builtFolderTree = buildFolderTree(medias);
+            
             if (creatingFolder && folderPathExists(builtFolderTree, creatingFolder?.parentPath + '/' + creatingFolder?.name)) {
                 setCreatingFolder(null);
             }
+            
             return builtFolderTree;
         },
         [medias]
@@ -59,9 +61,7 @@ export default function Sidebar({selectedFolder, medias, onSelectedFolder, onFol
     function handleFolderRename(folderPath: string, newFolderName: string, isNew: boolean) {
         if (isNew) {
             if (creatingFolder) {
-                if (selectedFolder.path === folderPath + '/' + creatingFolder.name) {
-                    onSelectedFolder(createNode(newFolderName, folderPath + '/' + newFolderName))
-                }
+                onSelectedFolder(createNode(newFolderName, folderPath + '/' + newFolderName));
                 setCreatedFolderNodeValues(newFolderName, folderPath);
                 setIsCreatingFolder(false);
             }

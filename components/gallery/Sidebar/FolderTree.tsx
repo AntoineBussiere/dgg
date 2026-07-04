@@ -52,7 +52,6 @@ export function FolderTree({ folderTreeNode, selectedFolder, creatingFolder, isC
                                 isCreatingFolder={isCreatingFolder}
                                 active={selectedFolder.path === creatingFolder.parentPath + '/' + creatingFolder.name}
                                 onRemoveNewFolder={onRemoveNewFolder}
-                                isNew
                             />
                         )}
                     </div>

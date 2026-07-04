@@ -7,6 +7,7 @@ import cloudinary from "./cloudinary";
 export async function getMedias(): Promise<SavedMedia[]> {
     const medias = await prisma.media.findMany({
         orderBy: [
+            { folderPath: 'asc' },
             { date: { sort: 'desc', nulls: 'last'}},
             { createdAt: 'desc'}
         ]
@@ -43,8 +44,8 @@ export async function deleteFolder(folderPath: string): Promise<void> {
     if (folderPath !== 'Discjonctés') {
         const medias = await prisma.media.findMany({
             where: {
-                folderPath: {
-                    startsWith: folderPath
+                public_id: {
+                    startsWith: folderPath + '/'
                 }
             }
         });
@@ -55,8 +56,8 @@ export async function deleteFolder(folderPath: string): Promise<void> {
     
         await prisma.media.deleteMany({
             where: {
-                folderPath: {
-                    startsWith: folderPath
+                public_id: {
+                    startsWith: folderPath + '/'
                 }
             }
         });
