@@ -208,7 +208,7 @@ export default function MediaLightBox({ medias, index, onClose, diapo = false }:
                 <div className="
                     absolute bottom-0 left-0 right-0
                     px-3 py-2 flex items-center gap-2
-                    bg-gradient-to-t from-black/70 via-black/40 to-transparent
+                    bg-linear-to-t from-black/70 via-black/40 to-transparent
                 ">
                     <p className={`
                         text-white

@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-    title: "Gestionnaire de gallerie Discjonctés"
+    title: "Gestionnaire de galerie Discjonctés"
 };
 
 export default function RootLayout({

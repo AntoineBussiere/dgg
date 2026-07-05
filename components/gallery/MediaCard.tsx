@@ -11,12 +11,16 @@ import { getISODate, getLocalDate } from "@/hooks/date";
 
 type Props = {
     media: PendingMedia | SavedMedia,
+    selected?: boolean,
+    multipleSelection?: boolean,
+    importedMedia: boolean,
     onUpdateMedia: (media: SavedMedia | PendingMedia) => void,
     onDeleteMedia: (media: SavedMedia | PendingMedia) => void,
-    openLightbox: (id: string) => void
+    openLightbox: (id: string) => void,
+    onSelectionChange?: (selected: boolean) => void
 }
 
-export default function MediaCard({media, onUpdateMedia, onDeleteMedia, openLightbox}: Props) {
+export default function MediaCard({media, selected, multipleSelection, importedMedia, onUpdateMedia, onDeleteMedia, openLightbox, onSelectionChange}: Props) {
     const [isEditing, setIsEditing] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [caption, setCaption] = useState(media.caption ?? '');
@@ -70,6 +74,13 @@ export default function MediaCard({media, onUpdateMedia, onDeleteMedia, openLigh
     }, [caption, date, media, onUpdateMedia]);
 
     useEffect(() => {
+        if (multipleSelection) {
+            cancelEdit();
+            setIsModalOpen(false);
+        }
+    }, [multipleSelection]);
+
+    useEffect(() => {
         if (!isEditing) return;
 
         function handleClickOutside(event: MouseEvent) {
@@ -107,6 +118,7 @@ export default function MediaCard({media, onUpdateMedia, onDeleteMedia, openLigh
         }
         onDeleteMedia(media);
         setIsModalOpen(false);
+        showToast('Le fichier a bien été supprimé.', 'success');
     }
 
     function handleOpenMediaLightBox() {
@@ -120,13 +132,69 @@ export default function MediaCard({media, onUpdateMedia, onDeleteMedia, openLigh
     }
 
     return (
-        <div className="relative rounded-xl overflow-hidden border border-white/10 bg-white/5 hover:bg-white/10 transition" ref={cardRef}>
+        <div
+            className={`
+                relative rounded-xl overflow-hidden
+                bg-white/5 transition
+                ${selected
+                    ? "ring-2 ring-blue-500"
+                    : "border border-white/10 hover:bg-white/10"}
+            `}
+            ref={cardRef}
+        >
+
+            {/* Checkbox */}
+            {!importedMedia && (
+                <label
+                    className="
+                        absolute top-2 left-2
+                        cursor-pointer z-10
+                    "
+                >
+                    <input
+                        type="checkbox"
+                        checked={selected}
+                        onChange={(e) => onSelectionChange?.(e.target.checked)}
+                        className="sr-only"
+                    />
+
+                    <div
+                        className={`
+                            flex h-6 w-6 items-center justify-center rounded-md
+                            border-2 transition-all duration-150
+                            ${
+                                selected
+                                    ? "bg-blue-500 border-blue-500"
+                                    : "bg-black/30 border-white backdrop-blur-sm"
+                            }
+                        `}
+                    >
+                        {selected && (
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="3"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="h-4 w-4 text-white"
+                            >
+                                <path d="M20 6L9 17l-5-5" />
+                            </svg>
+                        )}
+                    </div>
+                </label>
+            )}
+
+            {/* Status badges */}
             {media.status !== 'saved' && (
                 <MediaStatusBadge status={media.status} />
             )}
             {media.status === 'saved' && media.new && (
                 <MediaStatusBadge status={'new'} />
             )}
+
             <div className="relative aspect-square bg-slate-700 overflow-hidden">
                 <Image
                     alt={caption}
@@ -188,29 +256,31 @@ export default function MediaCard({media, onUpdateMedia, onDeleteMedia, openLigh
                     </div>
                 )}
 
-                <div className="flex flex-col 2xl:flex-row gap-2 mt-2 transition">
-                    {!isEditing ? (
-                        <>
-                            <button className="flex-1 min-w-0 text-xs px-2 py-1 rounded bg-white/10 hover:bg-white/20" onClick={() => setIsEditing(true)}>
-                                Modifier
-                            </button>
+                {!multipleSelection && (
+                    <div className="flex flex-col 2xl:flex-row gap-2 mt-2 transition">
+                        {!isEditing ? (
+                            <>
+                                <button className="flex-1 min-w-0 text-xs px-2 py-1 rounded bg-white/10 hover:bg-white/20" onClick={() => setIsEditing(true)}>
+                                    Modifier
+                                </button>
 
-                            <button className="flex-1 min-w-0 text-xs px-2 py-1 rounded bg-red-500/20 hover:bg-red-500/40" onClick={() => setIsModalOpen(true)}>
-                                Supprimer
-                            </button>
-                        </>
-                    ) : (
-                        <>
-                            <button className="flex-1 text-xs px-2 py-1 rounded bg-blue-500 hover:bg-blue-600" onClick={handleSave}>
-                                Sauvegarder
-                            </button>
+                                <button className="flex-1 min-w-0 text-xs px-2 py-1 rounded bg-red-500/20 hover:bg-red-500/40" onClick={() => setIsModalOpen(true)}>
+                                    Supprimer
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <button className="flex-1 text-xs px-2 py-1 rounded bg-blue-500 hover:bg-blue-600" onClick={handleSave}>
+                                    Sauvegarder
+                                </button>
 
-                            <button className="flex-1 text-xs px-2 py-1 rounded bg-white/10 hover:bg-white/20" onClick={cancelEdit}>
-                                Annuler
-                            </button>
-                        </>
-                    )}
-                </div>
+                                <button className="flex-1 text-xs px-2 py-1 rounded bg-white/10 hover:bg-white/20" onClick={cancelEdit}>
+                                    Annuler
+                                </button>
+                            </>
+                        )}
+                    </div>
+                )}
             </div>
             <Modal
                 open={isModalOpen}

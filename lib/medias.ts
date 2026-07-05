@@ -1,17 +1,11 @@
 "use server"
 
 import { SavedMedia, UpdateMediaDTO } from "@/types/media";
-import { prisma } from "./prisma";
-import cloudinary from "./cloudinary";
+import { deleteFromFolder, deletePrismaMedia, deletePrismaMedias, findAll, findWithFolder, updateMetadata } from "@/app/services/media.service";
+import { deleteCloudinaryMedia, deleteCloudinaryMedias } from "@/app/services/cloudinary.service";
 
 export async function getMedias(): Promise<SavedMedia[]> {
-    const medias = await prisma.media.findMany({
-        orderBy: [
-            { folderPath: 'asc' },
-            { date: { sort: 'desc', nulls: 'last'}},
-            { createdAt: 'desc'}
-        ]
-    });
+    const medias = await findAll();
     return medias.map(media => ({
         ...media,
         status: 'saved',
@@ -20,10 +14,7 @@ export async function getMedias(): Promise<SavedMedia[]> {
 }
 
 export async function updateMedia(id: string, media: UpdateMediaDTO): Promise<SavedMedia> {
-    const updatedMedia = await prisma.media.update({
-        where: { id },
-        data: { caption: media.caption, date: media.date }
-    });
+    const updatedMedia = await updateMetadata(id, media);
 
     return {
         ...updatedMedia,
@@ -33,33 +24,23 @@ export async function updateMedia(id: string, media: UpdateMediaDTO): Promise<Sa
 }
 
 export async function deleteMedia(public_id: string): Promise<void> {
-    await prisma.media.deleteMany({
-        where: { public_id }
-    })
+    await deletePrismaMedia(public_id);
+    await deleteCloudinaryMedia(public_id);
+}
 
-    await cloudinary.uploader.destroy(public_id);
+export async function deleteMedias(public_ids: string[]): Promise<void> {
+    await deletePrismaMedias(public_ids);
+    await deleteCloudinaryMedias(public_ids);
 }
 
 export async function deleteFolder(folderPath: string): Promise<void> {
     if (folderPath !== 'Discjonctés') {
-        const medias = await prisma.media.findMany({
-            where: {
-                public_id: {
-                    startsWith: folderPath + '/'
-                }
-            }
-        });
+        const medias = await findWithFolder(folderPath);
     
         for(const media of medias) {
-            await cloudinary.uploader.destroy(media.public_id);
+            await deleteCloudinaryMedia(media.public_id);
         }
     
-        await prisma.media.deleteMany({
-            where: {
-                public_id: {
-                    startsWith: folderPath + '/'
-                }
-            }
-        });
+        await deleteFromFolder(folderPath);
     }
 }

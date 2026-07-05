@@ -1,7 +1,7 @@
 import { UploadApiResponse } from "cloudinary";
 
 export async function uploadToCloudinary(file: File, folder: string): Promise<UploadApiResponse> {
-    const signRes = await fetch("/api/cloudinary/sign", {
+    const signRes = await fetch("/api/cloudinary/upload-sign", {
         method: "POST",
         body: JSON.stringify({ folder }),
     });

@@ -19,6 +19,7 @@ export default function GalleryPage({initialMedias}: Props) {
     const [savedMedias, setSavedMedias] = useState<SavedMedia[]>(initialMedias);
     const [importedMedias, setImportedMedias] = useState<PendingMedia[]>([]);
     const [selectedFolder, setSelectedFolder] = useState<FolderTreeNode>(buildRootTreeNode());
+    const [selectedMedias, setSelectedMedias] = useState<SavedMedia[]>([]);
             
     const { showToast } = useToast();
 
@@ -28,6 +29,7 @@ export default function GalleryPage({initialMedias}: Props) {
 
     function handleFolderSelection(treeNode: FolderTreeNode) {
         setSelectedFolder(treeNode);
+        setSelectedMedias([]);
     }
 
     function updateMedia(updatedMedia: SavedMedia | PendingMedia) {
@@ -72,9 +74,8 @@ export default function GalleryPage({initialMedias}: Props) {
         const newFolderPath = oldFolderPath.substring(0, oldFolderPath.lastIndexOf("/")) + '/' + newFolderName;
 
         // rename only if DB saved medias have folder path changed
-        if (savedMedias.some(x => x.folderPath === oldFolderPath)) {
-            const mediasToRename = savedMedias.filter(x => x.folderPath === newFolderPath);
-    
+        const mediasToRename = savedMedias.filter(x => x.folderPath === oldFolderPath);
+        if (mediasToRename.length > 0) {
             const res = await fetch('/api/gallery/folders', {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
@@ -106,8 +107,24 @@ export default function GalleryPage({initialMedias}: Props) {
         setSavedMedias(prev => prev.filter(x => !x.public_id.startsWith(folderPath + '/')));
     }
 
+    function handleMultipleSelection(newMedia: boolean, medias: SavedMedia[]) {
+        if (medias.length === 1) {
+            if (newMedia) {
+                setSelectedMedias(prev => [...prev, ...medias]);
+            } else {
+                setSelectedMedias(prev => prev.filter(x => x.id !== medias[0].id));
+            }
+        } else {
+            if (newMedia) {
+                setSelectedMedias(medias);
+            } else {
+                setSelectedMedias([]);
+            }
+        }
+    }
+
     return (
-        <main className="h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 text-white flex">
+        <main className="h-screen overflow-hidden bg-linear-to-br from-slate-900 via-slate-800 to-slate-950 text-white flex">
             <Sidebar
                 selectedFolder={selectedFolder}
                 medias={[...savedMedias, ...importedMedias]}
@@ -120,9 +137,11 @@ export default function GalleryPage({initialMedias}: Props) {
                 <Topbar
                     importedMedias={importedMedias}
                     selectedFolder={selectedFolder.path}
+                    selectedMedias={selectedMedias}
                     onMediasSaving={() => handleMediasStatus('uploading')}
                     onMediasSaved={handleMediasSaved}
                     onMediasError={() => handleMediasStatus('error')}
+                    onResetSelection={() => setSelectedMedias([])}
                 />
 
                 <div className="flex-1 overflow-y-auto p-6 space-y-6">
@@ -131,8 +150,10 @@ export default function GalleryPage({initialMedias}: Props) {
                     <MediaGrid
                         importedMedias={getImportedMediasOfSelectedFolder()}
                         savedMedias={getSavedMediasOfSelectedFolder()}
+                        selectedMedias={selectedMedias}
                         onUpdateMedia={updateMedia}
                         onDeleteMedia={deleteMedia}
+                        onMultipleSelection={handleMultipleSelection}
                     />
                 </div>
             </div>

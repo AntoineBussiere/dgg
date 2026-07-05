@@ -3,19 +3,40 @@
 import { PendingMedia, SavedMedia } from "@/types/media";
 import MediaCard from "./MediaCard";
 import MediaLightBox from "../ui/MediaLightBox";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Props = {
     importedMedias: PendingMedia[],
     savedMedias: SavedMedia[],
+    selectedMedias: (SavedMedia | PendingMedia)[],
     onUpdateMedia: (media: SavedMedia | PendingMedia) => void,
-    onDeleteMedia: (media: SavedMedia | PendingMedia) => void
+    onDeleteMedia: (media: SavedMedia | PendingMedia) => void,
+    onMultipleSelection: (newMedia: boolean, medias: SavedMedia[]) => void
 }
 
-export default function MediaGrid({importedMedias, onUpdateMedia, onDeleteMedia, savedMedias}: Props) {
+export default function MediaGrid({importedMedias, savedMedias, selectedMedias, onUpdateMedia, onDeleteMedia, onMultipleSelection}: Props) {
     const [selectedIndex, setSelectedIndex] = useState(-1);
 
     const allMedias = [...importedMedias, ...savedMedias];
+
+    useEffect(() => {
+        function handleKeyDown(e: KeyboardEvent) {
+            if (e.ctrlKey && e.key === "a") {
+                e.preventDefault();
+                if (selectedMedias.length < savedMedias.length) {
+                    onMultipleSelection(true, savedMedias);
+                } else {
+                    onMultipleSelection(false, []);
+                }
+            }
+        }
+
+        window.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [savedMedias]);
 
     function openLightBox(mediaId: string) {
         setSelectedIndex(allMedias.findIndex(x => x.id === mediaId)); 
@@ -53,6 +74,7 @@ export default function MediaGrid({importedMedias, onUpdateMedia, onDeleteMedia,
                             <MediaCard
                                 media={media}
                                 key={media.id}
+                                importedMedia={true}
                                 onUpdateMedia={onUpdateMedia}
                                 onDeleteMedia={onDeleteMedia}
                                 openLightbox={openLightBox}
@@ -89,9 +111,13 @@ export default function MediaGrid({importedMedias, onUpdateMedia, onDeleteMedia,
                         <MediaCard
                             media={media}
                             key={media.id}
+                            selected={selectedMedias.some(x => x.id === media.id)}
+                            multipleSelection={selectedMedias.length > 0}
+                            importedMedia={false}
                             onUpdateMedia={onUpdateMedia}
                             onDeleteMedia={onDeleteMedia}
                             openLightbox={openLightBox}
+                            onSelectionChange={(selected: boolean) => {onMultipleSelection(selected, [media])}}
                         />
                     ))}
                 </div>

@@ -1,7 +1,7 @@
 import { requireAuth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { CreateMediaDTO } from "@/types/media";
-import { prisma } from "@/lib/prisma";
+import { createMany } from "@/app/services/media.service";
 
 export async function POST(req: Request) {
     try {
@@ -14,12 +14,9 @@ export async function POST(req: Request) {
 
     try {
         const reqMedia = await req.json();
-
         const medias: CreateMediaDTO[] = reqMedia.medias;
         
-        const createdMedias = await prisma.media.createManyAndReturn({
-            data: medias
-        });
+        const createdMedias = await createMany(medias);
 
         return NextResponse.json(createdMedias.map(media => ({
             ...media,
