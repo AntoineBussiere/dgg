@@ -7,8 +7,14 @@ export default async function GalleryViewerIFrame() {
     const medias = await getMedias();
 
     return (
-        <div className="border border-gray-500/40 rounded-xl h-full overflow-hidden">
-            <GalleryViewerPage medias={medias} theme="light" mode="embedded"></GalleryViewerPage>
+        <div className="h-screen flex flex-col">
+            <div className="min-h-0 flex-1 overflow-auto border border-gray-500/40 rounded-xl">
+                <GalleryViewerPage
+                    medias={medias}
+                    theme="light"
+                    mode="embedded"
+                />
+            </div>
         </div>
     );
 }

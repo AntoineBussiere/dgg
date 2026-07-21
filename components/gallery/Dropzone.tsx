@@ -111,7 +111,7 @@ export default function Dropzone({onMediasAdded, selectedFolder}: Props) {
         <div>
             <div
                 className={`
-                    min-h-[220px]
+                    min-h-55
                     border
                     border-dashed
                     rounded-2xl
