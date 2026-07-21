@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import GalleryViewerPage from "@/components/gallery-viewer/GalleryViewerPage";
 import { getMedias } from "@/lib/medias";
 
