@@ -54,12 +54,15 @@ export default function GalleryHeader({medias}: Props) {
                     </p>
                 </div>
                 <button
+                    disabled={medias.length === 0}
                     className="
                         rounded-lg
                         border border-current/10
                         px-3 py-2
                         text-sm
                         hover:bg-current/10
+                        disabled:cursor-default
+                        disabled:opacity-40
                     "
                     onClick={handleDiapo}
                 >

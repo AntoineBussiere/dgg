@@ -99,6 +99,8 @@ export default function Topbar({importedMedias, selectedFolder, selectedMedias, 
 
     async function deleteSelectedMedias() {
         await deleteMedias(selectedMedias.map(x => x.public_id));
+        setIsModalOpen(false);
+        showToast('Les médias ont bien été supprimés.', 'success');
     }
 
     return (
