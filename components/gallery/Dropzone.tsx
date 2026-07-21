@@ -104,7 +104,7 @@ export default function Dropzone({onMediasAdded, selectedFolder}: Props) {
     }
 
     const filterValidMedias = (medias: File[]): File[] => {
-        return medias.filter(media => media.type.includes('video') || media.type.includes('image'));
+        return medias.filter(media => /*media.type.includes('video') || */media.type.includes('image'));
     }
 
     return (
