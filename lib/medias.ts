@@ -3,6 +3,7 @@
 import { SavedMedia, UpdateMediaDTO } from "@/types/media";
 import { deleteFromFolder, deletePrismaMedia, deletePrismaMedias, findAll, findWithFolder, updateMetadata } from "@/app/services/media.service";
 import { deleteCloudinaryMedia, deleteCloudinaryMedias } from "@/app/services/cloudinary.service";
+import { cloudinarySuffix } from "./env";
 
 export async function getMedias(): Promise<SavedMedia[]> {
     const medias = await findAll();
@@ -34,7 +35,7 @@ export async function deleteMedias(public_ids: string[]): Promise<void> {
 }
 
 export async function deleteFolder(folderPath: string): Promise<void> {
-    if (!folderPath.startsWith('Discjonctés')) {
+    if (folderPath !== "Discjonctés" + cloudinarySuffix) {
         const medias = await findWithFolder(folderPath);
     
         for(const media of medias) {
