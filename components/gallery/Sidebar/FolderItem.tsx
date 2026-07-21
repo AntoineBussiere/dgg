@@ -188,7 +188,7 @@ export function FolderItem({ name, nbNewMedias = 0, active = false, isCreatingFo
                 )}
             </button>
 
-            {folderName !== 'Discjonctés' && (
+            {!folderName.startsWith('Discjonctés') && (
                 <div className="relative ml-2 shrink-0">
                     {!isEditing && !isCreatingFolder ? (
                         <button

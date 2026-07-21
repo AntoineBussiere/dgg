@@ -1,6 +1,7 @@
 import { User } from "@/types/user";
-import { redis, redisPrefix } from "./redis";
+import { redis } from "./redis";
 import { hash } from "./bcrypt";
+import { redisPrefix } from "./env";
 
 export async function getUsers() {
     const users = await redis.get(redisPrefix + 'users') as User[];

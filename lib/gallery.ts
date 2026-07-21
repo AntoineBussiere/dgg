@@ -1,5 +1,6 @@
 import { FolderTreeNode } from "@/types/folder-tree";
 import { PendingMedia, SavedMedia } from "@/types/media";
+import { cloudinarySuffix } from "./env";
 
 export function buildFolderTree(
     medias: (SavedMedia | PendingMedia)[]
@@ -59,7 +60,7 @@ export function buildEmptyFolderTree(): FolderTreeNode[] {
 }
 
 export function buildRootTreeNode(): FolderTreeNode {
-    return {children: [], name: 'Discjonctés', path: 'Discjonctés', nbNewMedias: 0, nbMedias: 0};
+    return {children: [], name: 'Discjonctés' + cloudinarySuffix, path: 'Discjonctés' + cloudinarySuffix, nbNewMedias: 0, nbMedias: 0};
 }
 
 export function createNode(name: string, path: string): FolderTreeNode {

@@ -34,7 +34,7 @@ export async function deleteMedias(public_ids: string[]): Promise<void> {
 }
 
 export async function deleteFolder(folderPath: string): Promise<void> {
-    if (folderPath !== 'Discjonctés') {
+    if (!folderPath.startsWith('Discjonctés')) {
         const medias = await findWithFolder(folderPath);
     
         for(const media of medias) {
