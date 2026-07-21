@@ -2,6 +2,8 @@ const env =
     process.env.VERCEL_ENV ||
     process.env.NODE_ENV ||
     "development";
+
+console.log(env);
     
 export const redisPrefix = env === 'production' ? '' : env === 'preview' ? 'PREVIEW-' : 'DEV-';
 
